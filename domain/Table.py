@@ -1,4 +1,5 @@
-import Column
+from column import Column
+
 
 class Table:
     def __init__(self, name):
