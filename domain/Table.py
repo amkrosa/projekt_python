@@ -16,8 +16,11 @@ class Table:
     def name(self, name: str):
         self.__name = name
 
-    def __getitem__(self, item: str) -> C:
-        return self.__columnDictionary[item]
+    def get(self, name: str) -> C:
+        return self.__columnDictionary[name]
+
+    def __getitem__(self, name: str) -> C:
+        return self.__columnDictionary[name]
 
     def addColumn(self, column: C):
         self.__columnDictionary[column.name] = column
