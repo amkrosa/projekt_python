@@ -1,6 +1,6 @@
 import tk as tk
 
-from ui.RootViewModel import RootViewModel
+from ui.root.RootViewModel import RootViewModel
 
 if __name__ == '__main__':
     root = tk.Tk()

@@ -1,4 +1,4 @@
-from ui.RootView import RootView
+from ui.root.RootView import RootView
 
 
 class RootViewModel:
