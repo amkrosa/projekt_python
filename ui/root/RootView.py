@@ -2,9 +2,13 @@ import tkinter
 
 import tk
 
+from ui.table.TableView import TableView
 
-class RootView(tkinter.Toplevel):
+
+class RootView:
     def __init__(self, root):
-        tk.Toplevel.__init__(self, root)
-        self.protocol('WM_DELETE_WINDOW', self.root.destroy)
-        tk.Label(self, text='My Money').pack(side='left')
+        root.geometry('500x500')
+        root['bg'] = '#AC99F2'
+        frame = tkinter.Frame(root)
+        frame.pack()
+        TableView(frame)
