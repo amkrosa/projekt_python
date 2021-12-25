@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from domain.column.Column import Column
 
 
@@ -7,11 +9,11 @@ class FloatColumn(Column):
         self.__data: dict[int, float] = dict()
 
     @property
-    def data(self):
+    def data(self) -> dict:
         return self.__data
 
     @data.setter
-    def data(self, *data):
+    def data(self, data: List or Tuple):
         for element in data:
             if isinstance(element, float):
                 self.__data[super().nextRow()] = element

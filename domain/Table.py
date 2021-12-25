@@ -1,9 +1,11 @@
-from column import Column
+from typing import Type, TypeVar, Union, Dict
+
+C = TypeVar("C", bound="Column")
 
 
 class Table:
     def __init__(self, name):
-        self.__columnDictionary: dict[str, Column] = dict()
+        self.__columnDictionary: Dict[str, C] = dict()
         self.__name = name
 
     @property
@@ -14,5 +16,8 @@ class Table:
     def name(self, name: str):
         self.__name = name
 
-    def __getitem__(self, item: str):
-        return self.__columnDictionary[item].getData()
+    def __getitem__(self, item: str) -> C:
+        return self.__columnDictionary[item]
+
+    def addColumn(self, column: C):
+        self.__columnDictionary[column.name] = column

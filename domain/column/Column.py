@@ -1,40 +1,50 @@
 import abc
+from typing import Callable, Any, Dict, List, Tuple
+
 
 class Column(metaclass=abc.ABCMeta):
     def __init__(self, name: str):
-        if (self.validateName(name)):
-            self.__name = name.strip()
+        self._row = 0
+        if self._validateName(name):
+            self.name = name.strip()
 
     @classmethod
     def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, 'load_data_source') and
-                callable(subclass.load_data_source) and
-                hasattr(subclass, 'extract_text') and
-                callable(subclass.extract_text) or
+        return (hasattr(subclass, 'data') and
+                callable(subclass.data) or
                 NotImplemented)
 
     @property
     @abc.abstractmethod
-    def data(self):
+    def data(self) -> dict[int, Any]:
         """Get dictionary containing data for specified column"""
         raise NotImplementedError
 
     @data.setter
     @abc.abstractmethod
-    def data(self, *data):
+    def data(self, data: List or Tuple):
         """Write dictionary containing data for specified column"""
         raise NotImplementedError
 
-    def validateName(self, name: str) -> bool:
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    def _validateName(self, name: str) -> bool:
         if not isinstance(name, str):
             raise ValueError("Name must be a string")
         if len(name.strip()) == 0:
             raise ValueError("Name cannot consist only of whitespaces")
+        return True
 
     def nextRow(self):
-        row=0
         while True:
-            yield row
-            row+=1
+            self._row += 1
+            yield self._row
 
-
+    def executeQuery(self, query: Callable[[Any], bool]) -> dict[int, Any]:
+        return {index: value for (index, value) in self.data.items() if query(value)}

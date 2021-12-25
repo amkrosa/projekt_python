@@ -1,3 +1,5 @@
+from typing import Type, List, Tuple
+
 from domain.column.Column import Column
 
 
@@ -7,13 +9,15 @@ class IntegerColumn(Column):
         self.__data: dict[int, int] = dict()
 
     @property
-    def data(self):
+    def data(self) -> dict:
         return self.__data
 
     @data.setter
-    def data(self, *data):
+    def data(self, data: List or Tuple):
         for element in data:
             if isinstance(element, int):
-                self.__data[super().nextRow()] = element
+                next = super().nextRow().__next__()
+                print(next)
+                self.__data[next] = element
             else:
                 raise TypeError("IntegerColumn may consists only of integers")
