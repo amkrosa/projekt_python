@@ -20,10 +20,14 @@ class Column(metaclass=abc.ABCMeta):
         """Get dictionary containing data for specified column"""
         raise NotImplementedError
 
-    @data.setter
     @abc.abstractmethod
-    def data(self, data: List or Tuple):
+    def push(self, data: List or Tuple, handler):
         """Write dictionary containing data for specified column"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set(self, key: int, data: int):
+        """Set specified key with value"""
         raise NotImplementedError
 
     @property
@@ -46,5 +50,3 @@ class Column(metaclass=abc.ABCMeta):
             self._row += 1
             yield self._row
 
-    def executeQuery(self, query: Callable[[Any], bool]) -> dict[int, Any]:
-        return {index: value for (index, value) in self.data.items() if query(value)}

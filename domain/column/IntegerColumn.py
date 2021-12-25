@@ -1,23 +1,33 @@
-from typing import Type, List, Tuple
+from typing import List, Tuple
 
 from domain.column.Column import Column
+from lib.Observable import Observable
 
 
 class IntegerColumn(Column):
     def __init__(self, name):
         super().__init__(name)
-        self.__data: dict[int, int] = dict()
+        self.__data: dict[int, Observable] = dict()
 
     @property
     def data(self) -> dict:
         return self.__data
 
-    @data.setter
-    def data(self, data: List or Tuple):
+    def set(self, key: int, data: int):
+        if isinstance(data, int):
+            self.__data[key].set(data)
+        else:
+            raise TypeError("IntegerColumn may consists only of integers")
+
+    def delete(self, key: int):
+        self.__data.pop(key)
+
+    def push(self, data: List or Tuple, handler):
         for element in data:
             if isinstance(element, int):
                 next = super().nextRow().__next__()
-                print(next)
-                self.__data[next] = element
+                obs = Observable(element)
+                obs.addCallback(handler)
+                self.__data[next] = obs
             else:
                 raise TypeError("IntegerColumn may consists only of integers")
