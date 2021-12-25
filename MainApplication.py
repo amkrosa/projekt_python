@@ -1,9 +1,9 @@
 import tk as tk
 
-from application.RootService import RootService
+from ui.RootViewModel import RootViewModel
 
 if __name__ == '__main__':
     root = tk.Tk()
     root.withdraw()
-    app = RootService(root)
+    app = RootViewModel(root)
     root.mainloop()
