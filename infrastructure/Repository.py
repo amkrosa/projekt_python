@@ -15,8 +15,8 @@ class Repository:
     def repository(self):
         return self.__repository
 
-    def add(self, arg):
-        self.repository[uuid.uuid4()] = arg
+    def add(self, arg, id=uuid.uuid4()):
+        self.repository[id] = arg
 
     def remove(self, arg: uuid):
         self.repository.pop(arg)

@@ -1,5 +1,6 @@
 class Observable:
-    def __init__(self, initialValue=None):
+    def __init__(self, initialValue=None, uuid=None):
+        self.uuid = uuid
         self.data = initialValue
         self.callbacks = {}
 
@@ -11,7 +12,10 @@ class Observable:
 
     def _docallbacks(self):
         for func in self.callbacks:
-             func(self.data)
+            if self.uuid is None:
+                func(data=self.data)
+            else:
+                func(data=self.data, uuid=self.uuid)
 
     def set(self, data):
         self.data = data
