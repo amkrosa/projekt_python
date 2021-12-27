@@ -13,6 +13,11 @@ class TableViewModel:
         self.__tableView.setAddTableRegistry(handler=self.handleAddTable)
 
     def handleAddTable(self):
+        print(self.__repository.findByName("tabela"))
+        if self.__repository.findByName("tabela") is not None:
+            self.__tableView.errorPopup(parent=self.__tableView.addTableButton,
+                                        text="Taki element juz istnieje")
+            return
         id = self.__tableView.addRow("tabela")
         table = Table("tabela", id)
         table.setNameCallback(self.handleTableNameChanged)

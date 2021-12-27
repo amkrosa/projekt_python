@@ -20,3 +20,9 @@ class Repository:
 
     def remove(self, arg: uuid):
         self.repository.pop(arg)
+
+    def findByName(self, name):
+        for value in self.repository.values():
+            if value.name == name:
+                return value
+        return None

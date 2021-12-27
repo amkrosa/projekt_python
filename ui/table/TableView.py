@@ -21,6 +21,12 @@ class TableView:
     def tablesTable(self):
         return self.__tablesTable
 
+    def errorPopup(self, parent, text):
+        if dpg.does_item_exist("addTableButtonError"):
+            dpg.delete_item("addTableButtonError")
+        with dpg.tooltip(parent=parent, tag="addTableButtonError"):
+            dpg.add_text(text)
+
     def __createAddTableButton(self):
         dpg.add_button(tag="addTableButton", label="Dodaj tabele", parent="root")
 
