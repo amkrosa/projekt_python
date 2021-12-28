@@ -26,3 +26,10 @@ class Observable:
 
     def unset(self):
         self.data = None
+
+    def __get__(self, instance, owner):
+        return self.data
+
+    def __set__(self, instance, value):
+        self.data = value
+        self._docallbacks()
