@@ -16,18 +16,7 @@ class Column(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def data(self) -> dict[int, Any]:
-        """Get dictionary containing data for specified column"""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def push(self, data: List or Tuple, handler):
-        """Write dictionary containing data for specified column"""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set(self, key: int, data: int):
-        """Set specified key with value"""
+    def type(self):
         raise NotImplementedError
 
     @property
@@ -50,3 +39,12 @@ class Column(metaclass=abc.ABCMeta):
             self._row += 1
             yield self._row
 
+    def __getitem__(self, item):
+        return self.data[item].get()
+    #
+    # def __str__(self):
+    #     str = ""
+    #     str += f"name: {self.name}\n"
+    #     for row, val in self.data.items():
+    #         str += f"{row}: {val.get()}, "
+    #     return str
