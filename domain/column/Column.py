@@ -16,14 +16,7 @@ class Column(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def data(self) -> dict[int, Any]:
-        """Get dictionary containing data for specified column"""
-        raise NotImplementedError
-
-    @data.setter
-    @abc.abstractmethod
-    def data(self, data: List or Tuple):
-        """Write dictionary containing data for specified column"""
+    def type(self):
         raise NotImplementedError
 
     @property
@@ -46,5 +39,12 @@ class Column(metaclass=abc.ABCMeta):
             self._row += 1
             yield self._row
 
-    def executeQuery(self, query: Callable[[Any], bool]) -> dict[int, Any]:
-        return {index: value for (index, value) in self.data.items() if query(value)}
+    def __getitem__(self, item):
+        return self.data[item].get()
+    #
+    # def __str__(self):
+    #     str = ""
+    #     str += f"name: {self.name}\n"
+    #     for row, val in self.data.items():
+    #         str += f"{row}: {val.get()}, "
+    #     return str
