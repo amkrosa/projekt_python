@@ -1,3 +1,6 @@
+from typing import Callable, Any
+
+from application.ColumnService import ColumnService
 from domain.Table import Table
 from infrastructure.Repository import Repository
 
@@ -16,3 +19,7 @@ class TableService:
         for value in self.__repository.repository.values():
             if value.name == name:
                 return value
+        return None
+
+    def query(self, tableName, query: Callable[[Any], bool]) -> list:
+        return [row for row in self.getTable(tableName).rows if query(row)]

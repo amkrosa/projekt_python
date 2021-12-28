@@ -18,6 +18,3 @@ class ColumnService:
 
     def push(self, tableName, columnName, data: List or Tuple):
         self.__tableService.getTable(tableName)[columnName].data = data
-
-    def query(self, tableName, columnName, query: Callable[[Any], bool]) -> dict[int, Any]:
-        return {index: value for (index, value) in self.getColumn(tableName, columnName).data.items() if query(value)}
