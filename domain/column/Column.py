@@ -19,6 +19,10 @@ class Column(metaclass=abc.ABCMeta):
     def type(self):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def cast(self, value):
+        raise NotImplementedError
+
     @property
     def name(self):
         return self._name

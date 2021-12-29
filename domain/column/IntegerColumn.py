@@ -13,6 +13,12 @@ class IntegerColumn(Column):
     def type(self):
         return int
 
+    def cast(self, value):
+        try:
+            return int(value)
+        except ValueError:
+            raise TypeError("IntegerColumn may consists only of int")
+
     # @property
     # def data(self) -> dict:
     #     return self.__data

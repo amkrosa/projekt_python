@@ -13,6 +13,12 @@ class TextColumn(Column):
     def type(self):
         return str
 
+    def cast(self, value):
+        try:
+            return str(value)
+        except ValueError:
+            raise TypeError("TextColumn may consists only of str")
+
     # @property
     # def data(self) -> dict:
     #     return self.__data

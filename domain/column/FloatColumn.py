@@ -13,6 +13,12 @@ class FloatColumn(Column):
     def type(self):
         return float
 
+    def cast(self, value):
+        try:
+            return float(value)
+        except ValueError:
+            raise TypeError("FloatColumn may consists only of floats")
+
     # @property
     # def data(self) -> dict:
     #     return self.__data
