@@ -15,10 +15,12 @@ class TableView:
         self.__addTableInput = "addTableInput"
         self.__columnsTable = "columnsTable"
         self.__tablesTableRowCount = 0
+        self.__columnTypes = ["str", "int", "float"]
         self.__databaseTables()
         self.__createAddTableInput()
         self.__createAddTableButton()
         self.__createColumnsTable()
+        self.__createAddColumn()
 
     @property
     def addTableButton(self):
@@ -39,42 +41,57 @@ class TableView:
     def columnsTable(self):
         return self.__columnsTable
 
-    def errorPopup(self, text):
-        self.clearErrorPopup()
-        buttonPos = dpg.get_item_pos(self.addTableButton)
+    @property
+    def currentTableSelection(self):
+        return dpg.get_value("tableNameText")
+
+    def errorPopup(self, itemTag, text):
+        self.clearErrorPopup(itemTag)
+        buttonPos = dpg.get_item_pos(itemTag)
         buttonPos[0]+=110
-        with dpg.window(tag="error_addTableButton", popup=True, show=True, width=120, height=50,
+        with dpg.window(tag=f"error_{itemTag}", popup=True, show=True, width=120, height=50,
                         min_size=(100,20), no_resize=True, no_move=True,
                         pos=buttonPos):
             dpg.add_text(text)
 
-    def clearErrorPopup(self):
-        if dpg.does_item_exist("error_addTableButton"):
-            dpg.delete_item("error_addTableButton")
+    def clearErrorPopup(self, itemTag):
+        if dpg.does_item_exist(f"error_{itemTag}"):
+            dpg.delete_item(f"error_{itemTag}")
 
     def __createAddTableInput(self):
-        dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="root", width=100)
+        dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="tablesTableGroup", width=100)
 
     def __createAddTableButton(self):
-        dpg.add_button(tag="addTableButton", before=self.tablesTable, label="Dodaj tabele", parent="root")
+        dpg.add_button(tag="addTableButton", before=self.tablesTable, label="Dodaj tabele", parent="tablesTableGroup")
+
+    def __createAddColumn(self):
+        dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup", width=100)
+        dpg.add_radio_button(tag="addColumnRadio", items=self.__columnTypes, before=self.columnsTable, horizontal=True)
+        dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne", parent="columnsTableGroup")
 
     def __databaseTables(self):
-        with self.__root:
+        with dpg.group(parent="rootGroup", tag="tablesTableGroup", horizontal=False):
             with dpg.table(tag="tablesTable", header_row=True, width=250):
                 dpg.add_table_column(tag="tablesTableNameColumn", label="Name")
                 dpg.add_table_column(tag="tablesTableRowsColumn", label="Rows")
 
     def __createColumnsTable(self):
-        dpg.add_table(parent="root", tag="columnsTable", header_row=True, width=250, show=False)
+        with dpg.group(parent="rootGroup", tag="columnsTableGroup", show=False):
+            dpg.add_table(tag="columnsTable", header_row=True, width=400)
 
     def __clearColumnsTable(self):
-        if dpg.does_item_exist("columnsTable"):
+        if dpg.does_item_exist("columnsTable") and dpg.does_item_exist("tableNameText"):
+            dpg.delete_item("tableNameText")
             dpg.delete_item(self.columnsTable, children_only=True)
 
-    def addRow(self):
-        self.clearErrorPopup()
+    def addColumn(self):
+        name = dpg.get_value("addColumnInput")
+        radio = dpg.get_value("addColumnRadio")
+        return name, radio
+
+    def addTable(self):
+        self.clearErrorPopup(itemTag="addTableButton")
         id = uuid4()
-        print(id)
         data = dpg.get_value(self.addTableInput)
         with dpg.table_row(parent=self.tablesTable):
             dpg.add_text(data, tag=id.__str__())
@@ -85,12 +102,15 @@ class TableView:
         dpg.set_value(tag, data)
 
     def setRegistry(self, handlerTag, itemTag, handler):
+        if dpg.does_alias_exist(handlerTag):
+            dpg.remove_alias(handlerTag)
         with dpg.item_handler_registry(tag=handlerTag):
             dpg.add_item_clicked_handler(callback=handler)
         dpg.bind_item_handler_registry(itemTag, handlerTag)
 
-    def setColumns(self, rows: int, columns, data: list):
+    def setColumns(self, tableName, columns, data: list):
         self.__clearColumnsTable()
+        dpg.add_text(tableName, parent="columnsTableGroup", before=self.columnsTable, tag="tableNameText")
         dpg.add_table_column(parent=self.columnsTable, label="Wiersz", tag="rowCount")
 
         ##jeszcze mozna byloby zamiast robic w Row dict [str, Any] to zrobic [Column, Any]
@@ -105,4 +125,23 @@ class TableView:
                     dpg.add_text(str(value))
                 rowCounter+=1
 
-        dpg.configure_item(self.columnsTable, show=True)
+        with dpg.table_row(parent=self.columnsTable, tag=f"input_row"):
+            dpg.add_text(str(rowCounter + 1))
+            for col in columns.values():
+                dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
+            dpg.add_table_column(parent=self.columnsTable, tag=f"addRowButtonColumn")
+            dpg.add_button(label="Dodaj", tag="addRowButton")
+
+        dpg.configure_item("columnsTableGroup", show=True)
+
+    def readRowInput(self):
+        items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]
+        return dpg.get_values(items)
+
+    def __getTypeText(self, type):
+        if type == str:
+            return "str"
+        elif type == int:
+            return "int"
+        elif type == float:
+            return "float"
