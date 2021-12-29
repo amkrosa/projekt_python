@@ -47,6 +47,8 @@ class Table:
         return self.__columnDictionary[name]
 
     def addColumn(self, column: C):
+        for row in self.rows:
+            row.get().addValue(column.name, None)
         self.__columnDictionary[column.name] = column
 
     def __str__(self):

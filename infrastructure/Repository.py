@@ -15,6 +15,9 @@ class Repository:
     def repository(self):
         return self.__repository
 
+    def __getitem__(self, item):
+        return self.__repository[item]
+
     def add(self, arg, id=uuid.uuid4()):
         self.repository[id] = arg
 

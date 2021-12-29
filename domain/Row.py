@@ -9,5 +9,8 @@ class Row:
     def values(self):
         return self.__data.items()
 
+    def addValue(self, column, value):
+        self.__data[column] = value
+
     def __getitem__(self, columnName: str):
         return self.__data[columnName]
