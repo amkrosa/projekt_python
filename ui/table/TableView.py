@@ -21,6 +21,7 @@ class TableView:
         self.__createAddTableButton()
         self.__createColumnsTable()
         self.__createAddColumn()
+        self.__createQuerySearch()
 
     @property
     def addTableButton(self):
@@ -68,6 +69,11 @@ class TableView:
         dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup", width=100)
         dpg.add_radio_button(tag="addColumnRadio", items=self.__columnTypes, before=self.columnsTable, horizontal=True)
         dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne", parent="columnsTableGroup")
+
+    def __createQuerySearch(self):
+        with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True, width=150):
+            dpg.add_input_text(tag="querySearchInput", hint="lambda row: row[\"id\"]>3")
+            dpg.add_button(tag="querySearchButton", label="Szukaj")
 
     def __databaseTables(self):
         with dpg.group(parent="rootGroup", tag="tablesTableGroup", horizontal=False):
