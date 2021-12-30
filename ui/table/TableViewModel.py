@@ -9,17 +9,19 @@ from domain.column.TextColumn import TextColumn
 from infrastructure.Repository import Repository
 from lib.Observable import Observable
 import dearpygui.dearpygui as dpg
+
+from ui.root.RootView import RootView
 from ui.table.TableView import TableView
 
 logger = logging.getLogger(__name__)
 
 
 class TableViewModel:
-    def __init__(self, root):
-        self.__root = root
+    def __init__(self, root: RootView):
         self.__repository = Repository()
         self.__tableService = TableService(self.__repository)
-        self.__tableView = TableView(root, addTableCallback=self.handleAddTable, addColumnCallback=self.handleAddColumn)
+        self.__tableView = TableView(root, addTableCallback=self.handleAddTable,
+                                     addColumnCallback=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
                                      handler=self.handleAddTable)
         self.__tableView.setRegistry(itemTag="addColumnButton", handlerTag="addColumnHandler",
@@ -82,9 +84,21 @@ class TableViewModel:
         tab.push(row)
         self.refreshTableRows(tab)
 
-    def handleDeleteRow(self, sender, app_data, user_data):
-        row = user_data["row"]
+    #klikam guzik usunięcia
+    #wywoluje sie callback guziku usuniecia (handleDeleteRow)
+    #klikam OK, wywoluje sie callback guziku OK (handleConfirmationModal)
+    #chce przekazac dane do
 
+    def handleConfirm(self, sender, app_data, user_data):
+        self.__tableView.closeConfirmationModal()
+        if user_data["confirmation"]:
+            user_data["after"](user_data["data"])
+            self.refreshTableRows(self.currentTable)
+
+    def handleDeleteRow(self, sender, app_data, user_data):
+        row = user_data["row"]-1
+        tab = self.currentTable
+        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
 
     def handleQuerySearch(self):
         query = self.__tableView.currentQuerySearch

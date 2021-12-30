@@ -38,6 +38,12 @@ class Table:
         self.__rows.append(Observable(Row(row)))
         self.__rowCount.set(self.__rowCount.get()+1)
 
+    def remove(self, rowIndex):
+        try:
+            self.__rows.pop(rowIndex)
+        except Exception:
+            raise ValueError("Invalid index")
+
     def setNameCallback(self, callback):
         self.__name.addCallback(callback)
 

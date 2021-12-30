@@ -6,10 +6,11 @@ import dearpygui.dearpygui as dpg
 
 from domain.Table import Table
 from domain.column.Column import Column
+from ui.root.RootView import RootView
 
 
 class TableView:
-    def __init__(self, root: window, addTableCallback, addColumnCallback):
+    def __init__(self, root: RootView, addTableCallback, addColumnCallback):
         self.__root = root
         self.__addTableButton = "addTableButton"
         self.__tablesTable = "tablesTable"
@@ -59,6 +60,20 @@ class TableView:
                         min_size=(100,20), no_resize=True, no_move=True,
                         pos=buttonPos):
             dpg.add_text(text)
+
+    def confirmationModal(self, text, callback, afterCallback, afterData):
+        if dpg.does_item_exist("confirmation_modal"):
+            dpg.delete_item("confirmation_modal")
+
+        with dpg.window(modal=True, tag="confirmation_modal", pos=self.__root.centerRelative(200,100), width=200, height=100):
+            dpg.add_text(text)
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="OK", callback=callback, user_data={"confirmation": True, "after": afterCallback,
+                                                                         "data": afterData})
+                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
+
+    def closeConfirmationModal(self):
+        dpg.configure_item("confirmation_modal", show=False)
 
     def clearErrorPopup(self, itemTag):
         if dpg.does_item_exist(f"error_{itemTag}"):
@@ -119,7 +134,7 @@ class TableView:
         if dpg.does_alias_exist(handlerTag):
             dpg.remove_alias(handlerTag)
         with dpg.item_handler_registry(tag=handlerTag):
-            dpg.add_item_clicked_handler(callback=handler)
+            dpg.add_item_clicked_handler(callback=handler, user_data=userData)
         dpg.bind_item_handler_registry(itemTag, handlerTag)
 
     def setColumns(self, tab: Table, data: dict, addRowHandler, deleteRowHandler):
