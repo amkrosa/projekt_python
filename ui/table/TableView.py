@@ -21,6 +21,7 @@ class TableView:
         self.__createAddTableButton()
         self.__createColumnsTable()
         self.__createAddColumn()
+        self.__createQuerySearch()
 
     @property
     def addTableButton(self):
@@ -45,6 +46,10 @@ class TableView:
     def currentTableSelection(self):
         return dpg.get_value("tableNameText")
 
+    @property
+    def currentQuerySearch(self):
+        return dpg.get_value("querySearchInput")
+
     def errorPopup(self, itemTag, text):
         self.clearErrorPopup(itemTag)
         buttonPos = dpg.get_item_pos(itemTag)
@@ -68,6 +73,11 @@ class TableView:
         dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup", width=100)
         dpg.add_radio_button(tag="addColumnRadio", items=self.__columnTypes, before=self.columnsTable, horizontal=True)
         dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne", parent="columnsTableGroup")
+
+    def __createQuerySearch(self):
+        with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True, width=150):
+            dpg.add_input_text(tag="querySearchInput", hint="lambda row: row[\"id\"]>3")
+            dpg.add_button(tag="querySearchButton", label="Szukaj")
 
     def __databaseTables(self):
         with dpg.group(parent="rootGroup", tag="tablesTableGroup", horizontal=False):
@@ -101,11 +111,11 @@ class TableView:
     def changeRow(self, tag, data):
         dpg.set_value(tag, data)
 
-    def setRegistry(self, handlerTag, itemTag, handler):
+    def setRegistry(self, handlerTag, itemTag, handler, userData = None):
         if dpg.does_alias_exist(handlerTag):
             dpg.remove_alias(handlerTag)
         with dpg.item_handler_registry(tag=handlerTag):
-            dpg.add_item_clicked_handler(callback=handler)
+            dpg.add_item_clicked_handler(callback=handler, user_data="testing")
         dpg.bind_item_handler_registry(itemTag, handlerTag)
 
     def setColumns(self, tableName, columns, data: list):
