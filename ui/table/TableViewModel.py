@@ -27,6 +27,10 @@ class TableViewModel:
         self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
                                      handler=self.handleQuerySearch)
 
+    @property
+    def currentTable(self):
+        return self.__repository.findByName(self.__tableView.currentTableSelection)
+
     def handleAddTable(self):
         val: str = self.__tableView.addTableInputValue()
         if self.__repository.findByName(val) is not None:
@@ -45,8 +49,8 @@ class TableViewModel:
     def handleSelectTable(self, sender, app_data):
         tableId = app_data[1]
         t = self.__repository[tableId]
-        self.__tableView.setColumns(columns=t.columns, tableName=t.name, data=t.rows)
-        self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{t.name}_handler", handler=self.handleAddRow)
+        self.refreshTableRows(t)
+        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{t.name}_handler", handler=self.handleAddRow)
 
     def handleAddColumn(self):
         columnName, columnType = self.__tableView.addColumn()
@@ -59,18 +63,16 @@ class TableViewModel:
         elif columnType == "float":
             col = FloatColumn(columnName)
         else:
-            raise RuntimeError("Unexpected error has occured")
+            raise RuntimeError(f"Unexpected error has occured. Column type is: {columnType}")
 
-        tableName = self.__tableView.currentTableSelection
-        tab = self.__repository.findByName(tableName)
+        tab = self.currentTable
         tab.addColumn(col)
-        self.__tableView.setColumns(columns=tab.columns, tableName=tableName, data=tab.rows)
-        self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
+        self.refreshTableRows(tab)
+        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
 
     def handleAddRow(self):
         values = self.__tableView.readRowInput()
-        tableName = self.__tableView.currentTableSelection
-        tab = self.__repository.findByName(tableName)
+        tab = self.currentTable
         row = {}
         for index, col in enumerate(tab.columns.values()):
             try:
@@ -78,12 +80,16 @@ class TableViewModel:
             except TypeError:
                 self.__tableView.errorPopup(itemTag="addRowButton", text=f"Wartosc {values[index]} ma niepoprawny typ")
         tab.push(row)
-        self.__tableView.setColumns(columns=tab.columns, tableName=tableName, data=tab.rows)
-        self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
+        self.refreshTableRows(tab)
+        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
+
+    def handleDeleteRow(self, sender, app_data, user_data):
+        row = user_data["row"]
+
 
     def handleQuerySearch(self):
         query = self.__tableView.currentQuerySearch
-        tab = self.__repository.findByName(self.__tableView.currentTableSelection)
+        tab = self.currentTable
         try:
             data = self.__tableService.query(tab.name, eval(query))
         except Exception as e:
@@ -91,8 +97,12 @@ class TableViewModel:
             logger.debug(f"{e.__str__()}")
             return
 
-        self.__tableView.setColumns(tab.name, tab.columns, data)
-        self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
+        self.refreshTableRows(tab, data)
+        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
 
     def handleTableNameChanged(self, data, uuid):
         self.__tableView.changeRow(tag=uuid, data=data)
+
+    def refreshTableRows(self, tab: Table, data=None):
+        self.__tableView.setColumns(tab.name, tab.columns, tab.rows if data is None else data,
+                                    addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
