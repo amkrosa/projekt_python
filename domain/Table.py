@@ -7,11 +7,11 @@ C = TypeVar("C", bound="Column")
 
 
 class Table:
-    def __init__(self, name, nameUuid):
+    def __init__(self, name, tableId):
         self.__columnDictionary: Dict[str, C] = dict()
-        self.__name = Observable(name, nameUuid)
+        self.__name = Observable(name, tableId)
         self.__rows = []
-        self.__rowCount = 0
+        self.__rowCount = Observable(0, tableId)
 
     @property
     def name(self) -> str:
@@ -36,9 +36,13 @@ class Table:
     def push(self, row: dict):
         self.__verifyRow(row)
         self.__rows.append(Observable(Row(row)))
+        self.__rowCount.set(self.__rowCount.get()+1)
 
     def setNameCallback(self, callback):
         self.__name.addCallback(callback)
+
+    def setRowsCountCallback(self, callback):
+        self.__rowCount.addCallback(callback)
 
     def get(self, name: str) -> C:
         return self.__columnDictionary[name]

@@ -44,6 +44,7 @@ class TableViewModel:
         self.__tableView.setRegistry(itemTag=id, handlerTag=f"table_{data}_handler", handler=self.handleSelectTable)
         table = Table(data, id)
         table.setNameCallback(self.handleTableNameChanged)
+        table.setRowsCountCallback(self.handleRowsCountChanged)
         self.__repository.add(table, id=id)
 
     def handleSelectTable(self, sender, app_data):
@@ -78,9 +79,7 @@ class TableViewModel:
             except TypeError:
                 self.__tableView.errorPopup(itemTag="addRowButton", text=f"Wartosc {values[col.name]} ma niepoprawny typ")
                 return
-        print(row)
         tab.push(row)
-        print(tab.rows)
         self.refreshTableRows(tab)
 
     def handleDeleteRow(self, sender, app_data, user_data):
@@ -90,17 +89,20 @@ class TableViewModel:
     def handleQuerySearch(self):
         query = self.__tableView.currentQuerySearch
         tab = self.currentTable
-        # try:
-        data = self.__tableService.query(tab.name, eval(query))
-        # except Exception as e:
-        #     self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
-        #     logger.debug(f"{e.__str__()}")
-        #     return
+        try:
+            data = self.__tableService.query(tab.name, eval(query))
+        except Exception as e:
+             self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
+             logger.debug(f"{e.__str__()}")
+             return
 
         self.refreshTableRows(tab, data)
 
     def handleTableNameChanged(self, data, uuid):
-        self.__tableView.changeRow(tag=uuid, data=data)
+        self.__tableView[uuid] = data
+
+    def handleRowsCountChanged(self, data, uuid):
+        self.__tableView[f"count_{uuid}"] = data
 
     def refreshTableRows(self, tab: Table, data=None):
         self.__tableView.setColumns(tab, tab.rows if data is None else data,

@@ -112,8 +112,8 @@ class TableView:
             dpg.add_text("0", tag=f"count_{id.__str__()}")
         return id.__str__(), data
 
-    def changeRow(self, tag, data):
-        dpg.set_value(tag, data)
+    def __setitem__(self, key, value):
+        dpg.set_value(key, value)
 
     def setRegistry(self, handlerTag, itemTag, handler, userData = None):
         if dpg.does_alias_exist(handlerTag):
