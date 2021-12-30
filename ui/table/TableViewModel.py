@@ -1,5 +1,7 @@
+import logging
 from uuid import uuid4
 
+from application.TableService import TableService
 from domain.Table import Table
 from domain.column.FloatColumn import FloatColumn
 from domain.column.IntegerColumn import IntegerColumn
@@ -9,16 +11,21 @@ from lib.Observable import Observable
 import dearpygui.dearpygui as dpg
 from ui.table.TableView import TableView
 
+logger = logging.getLogger(__name__)
+
 
 class TableViewModel:
     def __init__(self, root):
         self.__root = root
         self.__repository = Repository()
+        self.__tableService = TableService(self.__repository)
         self.__tableView = TableView(root)
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
                                      handler=self.handleAddTable)
         self.__tableView.setRegistry(itemTag="addColumnButton", handlerTag="addColumnHandler",
                                      handler=self.handleAddColumn)
+        self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
+                                     handler=self.handleQuerySearch)
 
     def handleAddTable(self):
         val: str = self.__tableView.addTableInputValue()
@@ -72,6 +79,19 @@ class TableViewModel:
                 self.__tableView.errorPopup(itemTag="addRowButton", text=f"Wartosc {values[index]} ma niepoprawny typ")
         tab.push(row)
         self.__tableView.setColumns(columns=tab.columns, tableName=tableName, data=tab.rows)
+        self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
+
+    def handleQuerySearch(self):
+        query = self.__tableView.currentQuerySearch
+        tab = self.__repository.findByName(self.__tableView.currentTableSelection)
+        try:
+            data = self.__tableService.query(tab.name, eval(query))
+        except Exception as e:
+            self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
+            logger.debug(f"{e.__str__()}")
+            return
+
+        self.__tableView.setColumns(tab.name, tab.columns, data)
         self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
 
     def handleTableNameChanged(self, data, uuid):

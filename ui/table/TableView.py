@@ -46,6 +46,10 @@ class TableView:
     def currentTableSelection(self):
         return dpg.get_value("tableNameText")
 
+    @property
+    def currentQuerySearch(self):
+        return dpg.get_value("querySearchInput")
+
     def errorPopup(self, itemTag, text):
         self.clearErrorPopup(itemTag)
         buttonPos = dpg.get_item_pos(itemTag)
@@ -107,11 +111,11 @@ class TableView:
     def changeRow(self, tag, data):
         dpg.set_value(tag, data)
 
-    def setRegistry(self, handlerTag, itemTag, handler):
+    def setRegistry(self, handlerTag, itemTag, handler, userData = None):
         if dpg.does_alias_exist(handlerTag):
             dpg.remove_alias(handlerTag)
         with dpg.item_handler_registry(tag=handlerTag):
-            dpg.add_item_clicked_handler(callback=handler)
+            dpg.add_item_clicked_handler(callback=handler, user_data="testing")
         dpg.bind_item_handler_registry(itemTag, handlerTag)
 
     def setColumns(self, tableName, columns, data: list):
