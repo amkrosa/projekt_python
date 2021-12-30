@@ -5,8 +5,9 @@ from dearpygui.dearpygui import window
 import dearpygui.dearpygui as dpg
 
 class RootView:
-    def __init__(self):
+    def __init__(self, onCloseHandler):
         dpg.create_viewport(title='Klient bazy danych', width=self.width, height=self.height)
+        dpg.set_exit_callback(onCloseHandler)
         with dpg.window(tag="root"):
             dpg.add_group(tag="rootGroup", horizontal=True)
 

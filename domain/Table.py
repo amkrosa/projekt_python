@@ -1,3 +1,4 @@
+import json
 from typing import Type, TypeVar, Union, Dict, Any
 
 from domain.Row import Row
@@ -7,11 +8,16 @@ C = TypeVar("C", bound="Column")
 
 
 class Table:
-    def __init__(self, name, tableId):
+    def __init__(self, name, tableId, ):
+        self.__tableId = tableId
         self.__columnDictionary: Dict[str, C] = dict()
         self.__name = Observable(name, tableId)
         self.__rows = []
-        self.__rowCount = Observable(0, tableId)
+        self.__rowCount = Observable(len(self.__rows), tableId)
+
+    @property
+    def id(self):
+        return self.__tableId
 
     @property
     def name(self) -> str:
@@ -27,11 +33,15 @@ class Table:
 
     @property
     def rowCount(self):
-        return len(self.__rows)
+        return self.__rowCount.get()
 
     @property
     def rows(self):
         return {i+1: val for i, val in enumerate(self.__rows)}
+
+    @property
+    def json(self):
+        return json.dumps(self.__rows)
 
     def push(self, row: dict):
         self.__verifyRow(row)

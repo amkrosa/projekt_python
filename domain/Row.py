@@ -1,13 +1,13 @@
 class Row:
     def __init__(self, data):
-        self.__data = data
+        self.__data: dict = data
 
     def __iter__(self):
         return iter(self.__data)
 
     @property
     def values(self):
-        return self.__data.items()
+        return self.__data
 
     def addValue(self, column, value):
         self.__data[column] = value

@@ -1,4 +1,6 @@
+import json
 import logging
+from json import JSONEncoder
 from uuid import uuid4
 
 from application.TableService import TableService
@@ -7,6 +9,7 @@ from domain.column.FloatColumn import FloatColumn
 from domain.column.IntegerColumn import IntegerColumn
 from domain.column.TextColumn import TextColumn
 from infrastructure.Repository import Repository
+from infrastructure.json.Encoder import Encoder
 from lib.Observable import Observable
 import dearpygui.dearpygui as dpg
 
@@ -19,7 +22,7 @@ logger = logging.getLogger(__name__)
 class TableViewModel:
     def __init__(self, root: RootView):
         self.__repository = Repository()
-        self.__tableService = TableService(self.__repository)
+        self.__tableService = TableService(self.__repository.repository)
         self.__tableView = TableView(root, addTableCallback=self.handleAddTable,
                                      addColumnCallback=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
@@ -28,6 +31,7 @@ class TableViewModel:
                                      handler=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
                                      handler=self.handleQuerySearch)
+        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)
 
     @property
     def currentTable(self):
@@ -98,6 +102,7 @@ class TableViewModel:
     def handleDeleteRow(self, sender, app_data, user_data):
         row = user_data["row"]-1
         tab = self.currentTable
+        print(json.dumps(self.__repository, cls=Encoder))
         self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
 
     def handleQuerySearch(self):

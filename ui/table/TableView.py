@@ -104,6 +104,10 @@ class TableView:
                 dpg.add_table_column(tag="tablesTableNameColumn", label="Name")
                 dpg.add_table_column(tag="tablesTableRowsColumn", label="Rows")
 
+    def __clearDatabaseTables(self):
+        if dpg.does_item_exist("tablesTableDataGroup"):
+            dpg.delete_item("tablesTableGroup", children_only=True)
+
     def __createColumnsTable(self):
         with dpg.group(parent="rootGroup", tag="columnsTableGroup", show=False):
             dpg.add_table(tag="columnsTable", header_row=True, width=400)
@@ -122,7 +126,8 @@ class TableView:
         self.clearErrorPopup(itemTag="addTableButton")
         id = uuid4()
         data = dpg.get_value(self.addTableInput)
-        with dpg.table_row(parent=self.tablesTable):
+
+        with dpg.table_row(parent="tablesTable"):
             dpg.add_text(data, tag=id.__str__())
             dpg.add_text("0", tag=f"count_{id.__str__()}")
         return id.__str__(), data
@@ -150,7 +155,7 @@ class TableView:
         for i, row in data.items():
             with dpg.table_row(parent=self.columnsTable, tag=f"row_{i}"):
                 dpg.add_text(str(i))
-                for key, value in row.get().values:
+                for key, value in row.get().values.items():
                     dpg.add_text(str(value))
                 dpg.add_button(label="Usun", tag=f"deleteRowButton_{i}")
                 self.setRegistry(handlerTag=f"deleteRowButtonHandler_{i}",
@@ -165,6 +170,16 @@ class TableView:
             self.setRegistry(handlerTag="addRowButtonHandler", itemTag="addRowButton", handler=addRowHandler)
 
         dpg.configure_item("columnsTableGroup", show=True)
+
+    def setTables(self, data, selectTableHandler):
+        self.__clearDatabaseTables()
+        print(data.items())
+        for tableId, value in data.items():
+            with dpg.table_row(parent="tablesTable"):
+                dpg.add_text(value.name, tag=tableId)
+                self.setRegistry(itemTag=tableId, handlerTag=f"table_{value.name}_handler",
+                                             handler=selectTableHandler)
+                dpg.add_text(value.rowCount, tag=f"count_{tableId}")
 
     def readRowInput(self):
         items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]
