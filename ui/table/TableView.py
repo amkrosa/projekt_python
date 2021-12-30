@@ -4,11 +4,12 @@ from uuid import uuid4
 from dearpygui.dearpygui import window
 import dearpygui.dearpygui as dpg
 
+from domain.Table import Table
 from domain.column.Column import Column
 
 
 class TableView:
-    def __init__(self, root: window):
+    def __init__(self, root: window, addTableCallback, addColumnCallback):
         self.__root = root
         self.__addTableButton = "addTableButton"
         self.__tablesTable = "tablesTable"
@@ -17,10 +18,10 @@ class TableView:
         self.__tablesTableRowCount = 0
         self.__columnTypes = ["str", "int", "float"]
         self.__databaseTables()
-        self.__createAddTableInput()
+        self.__createAddTableInput(addTableCallback)
         self.__createAddTableButton()
         self.__createColumnsTable()
-        self.__createAddColumn()
+        self.__createAddColumn(addColumnCallback)
         self.__createQuerySearch()
 
     @property
@@ -63,15 +64,18 @@ class TableView:
         if dpg.does_item_exist(f"error_{itemTag}"):
             dpg.delete_item(f"error_{itemTag}")
 
-    def __createAddTableInput(self):
-        dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="tablesTableGroup", width=100)
+    def __createAddTableInput(self, addTableCallback):
+        dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="tablesTableGroup",
+                           width=100, callback=addTableCallback, on_enter=True)
 
     def __createAddTableButton(self):
         dpg.add_button(tag="addTableButton", before=self.tablesTable, label="Dodaj tabele", parent="tablesTableGroup")
 
-    def __createAddColumn(self):
-        dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup", width=100)
-        dpg.add_radio_button(tag="addColumnRadio", default_value="str", items=self.__columnTypes, before=self.columnsTable, horizontal=True)
+    def __createAddColumn(self, addColumnCallback):
+        dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup",
+                           width=100, callback=addColumnCallback, on_enter=True)
+        dpg.add_radio_button(tag="addColumnRadio", default_value="str", items=self.__columnTypes, before=self.columnsTable,
+                             horizontal=True)
         dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne", parent="columnsTableGroup")
 
     def __createQuerySearch(self):
@@ -118,29 +122,29 @@ class TableView:
             dpg.add_item_clicked_handler(callback=handler)
         dpg.bind_item_handler_registry(itemTag, handlerTag)
 
-    def setColumns(self, tableName, columns, data: list, addRowHandler, deleteRowHandler):
+    def setColumns(self, tab: Table, data: dict, addRowHandler, deleteRowHandler):
         self.__clearColumnsTable()
-        dpg.add_text(tableName, parent="columnsTableGroup", before=self.columnsTable, tag="tableNameText")
+        dpg.add_text(tab.name, parent="columnsTableGroup", before=self.columnsTable, tag="tableNameText")
         dpg.add_table_column(parent=self.columnsTable, label="Wiersz", tag="rowCount")
 
         ##jeszcze mozna byloby zamiast robic w Row dict [str, Any] to zrobic [Column, Any]
-        for name in columns.keys():
+        for name in tab.columns.keys():
             dpg.add_table_column(parent=self.columnsTable, label=name, tag=f"column_{name}")
         dpg.add_table_column(parent=self.columnsTable, tag=f"inputColumn")
 
-        for i, row in enumerate(data):
-            with dpg.table_row(parent=self.columnsTable, tag=f"row_{i+1}"):
-                dpg.add_text(str(i+1))
+        for i, row in data.items():
+            with dpg.table_row(parent=self.columnsTable, tag=f"row_{i}"):
+                dpg.add_text(str(i))
                 for key, value in row.get().values:
                     dpg.add_text(str(value))
                 dpg.add_button(label="Usun", tag=f"deleteRowButton_{i}")
                 self.setRegistry(handlerTag=f"deleteRowButtonHandler_{i}",
                                  itemTag=f"deleteRowButton_{i}", handler=deleteRowHandler,
-                                 userData={"table": tableName, "row": i})
+                                 userData={"table": tab.name, "row": i})
 
         with dpg.table_row(parent=self.columnsTable, tag=f"input_row"):
-            dpg.add_text(str(len(data)+1))
-            for col in columns.values():
+            dpg.add_text(str(len(tab.rows)+1))
+            for col in tab.columns.values():
                 dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
             dpg.add_button(label="Dodaj", tag="addRowButton")
             self.setRegistry(handlerTag="addRowButtonHandler", itemTag="addRowButton", handler=addRowHandler)
@@ -149,7 +153,7 @@ class TableView:
 
     def readRowInput(self):
         items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]
-        return dpg.get_values(items)
+        return {item.split("_")[3]: (dpg.get_value(item) if dpg.get_value(item)!="" else None) for item in items}
 
     def __getTypeText(self, type):
         if type == str:

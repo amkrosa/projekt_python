@@ -20,5 +20,5 @@ class TableService:
                 return value
         return None
 
-    def query(self, tableName, query: Callable[[Any], bool]) -> list:
-        return [row for row in self.getTable(tableName).rows if query(row.get())]
+    def query(self, tableName, query: Callable[[Any], bool]) -> dict:
+        return {i: row for i, row in self.getTable(tableName).rows.items() if query(row.get())}

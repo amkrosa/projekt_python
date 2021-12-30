@@ -19,7 +19,7 @@ class TableViewModel:
         self.__root = root
         self.__repository = Repository()
         self.__tableService = TableService(self.__repository)
-        self.__tableView = TableView(root)
+        self.__tableView = TableView(root, addTableCallback=self.handleAddTable, addColumnCallback=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
                                      handler=self.handleAddTable)
         self.__tableView.setRegistry(itemTag="addColumnButton", handlerTag="addColumnHandler",
@@ -50,7 +50,6 @@ class TableViewModel:
         tableId = app_data[1]
         t = self.__repository[tableId]
         self.refreshTableRows(t)
-        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{t.name}_handler", handler=self.handleAddRow)
 
     def handleAddColumn(self):
         columnName, columnType = self.__tableView.addColumn()
@@ -68,7 +67,6 @@ class TableViewModel:
         tab = self.currentTable
         tab.addColumn(col)
         self.refreshTableRows(tab)
-        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
 
     def handleAddRow(self):
         values = self.__tableView.readRowInput()
@@ -76,12 +74,14 @@ class TableViewModel:
         row = {}
         for index, col in enumerate(tab.columns.values()):
             try:
-                row[col.name] = col.cast(values[index])
+                row[col.name] = col.cast(values[col.name])
             except TypeError:
-                self.__tableView.errorPopup(itemTag="addRowButton", text=f"Wartosc {values[index]} ma niepoprawny typ")
+                self.__tableView.errorPopup(itemTag="addRowButton", text=f"Wartosc {values[col.name]} ma niepoprawny typ")
+                return
+        print(row)
         tab.push(row)
+        print(tab.rows)
         self.refreshTableRows(tab)
-        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
 
     def handleDeleteRow(self, sender, app_data, user_data):
         row = user_data["row"]
@@ -90,19 +90,18 @@ class TableViewModel:
     def handleQuerySearch(self):
         query = self.__tableView.currentQuerySearch
         tab = self.currentTable
-        try:
-            data = self.__tableService.query(tab.name, eval(query))
-        except Exception as e:
-            self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
-            logger.debug(f"{e.__str__()}")
-            return
+        # try:
+        data = self.__tableService.query(tab.name, eval(query))
+        # except Exception as e:
+        #     self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
+        #     logger.debug(f"{e.__str__()}")
+        #     return
 
         self.refreshTableRows(tab, data)
-        #self.__tableView.setRegistry(itemTag="addRowButton", handlerTag=f"addRow_{tab.name}_handler", handler=self.handleAddRow)
 
     def handleTableNameChanged(self, data, uuid):
         self.__tableView.changeRow(tag=uuid, data=data)
 
     def refreshTableRows(self, tab: Table, data=None):
-        self.__tableView.setColumns(tab.name, tab.columns, tab.rows if data is None else data,
+        self.__tableView.setColumns(tab, tab.rows if data is None else data,
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)

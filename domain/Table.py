@@ -31,11 +31,11 @@ class Table:
 
     @property
     def rows(self):
-        return self.__rows
+        return {i+1: val for i, val in enumerate(self.__rows)}
 
     def push(self, row: dict):
         self.__verifyRow(row)
-        self.rows.append(Observable(Row(row)))
+        self.__rows.append(Observable(Row(row)))
 
     def setNameCallback(self, callback):
         self.__name.addCallback(callback)
@@ -47,7 +47,7 @@ class Table:
         return self.__columnDictionary[name]
 
     def addColumn(self, column: C):
-        for row in self.rows:
+        for row in self.__rows:
             row.get().addValue(column.name, None)
         self.__columnDictionary[column.name] = column
 
@@ -62,5 +62,5 @@ class Table:
             if col not in row.keys():
                 raise ValueError(f"Row should contain all table columns, does not have {col}")
         for colName, rowValue in row.items():
-            if not isinstance(rowValue, self[colName].type):
+            if rowValue != None and not isinstance(rowValue, self[colName].type):
                 raise TypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
