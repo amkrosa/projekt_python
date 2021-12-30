@@ -147,11 +147,16 @@ class TableView:
         dpg.add_text(tab.name, parent="columnsTableGroup", before=self.columnsTable, tag="tableNameText")
         dpg.add_table_column(parent=self.columnsTable, label="Wiersz", tag="rowCount")
 
-        ##jeszcze mozna byloby zamiast robic w Row dict [str, Any] to zrobic [Column, Any]
         for name in tab.columns.keys():
             dpg.add_table_column(parent=self.columnsTable, label=name, tag=f"column_{name}")
         dpg.add_table_column(parent=self.columnsTable, tag=f"inputColumn")
 
+        self.__setColumnsData(tab.name, data, deleteRowHandler)
+        self.__setColumnsInput(str(len(tab.rows)+1), tab.columns, addRowHandler)
+
+        dpg.configure_item("columnsTableGroup", show=True)
+
+    def __setColumnsData(self, tableName, data: dict, deleteRowHandler):
         for i, row in data.items():
             with dpg.table_row(parent=self.columnsTable, tag=f"row_{i}"):
                 dpg.add_text(str(i))
@@ -160,16 +165,15 @@ class TableView:
                 dpg.add_button(label="Usun", tag=f"deleteRowButton_{i}")
                 self.setRegistry(handlerTag=f"deleteRowButtonHandler_{i}",
                                  itemTag=f"deleteRowButton_{i}", handler=deleteRowHandler,
-                                 userData={"table": tab.name, "row": i})
+                                 userData={"table": tableName, "row": i})
 
+    def __setColumnsInput(self, rowsCount, columns, addRowHandler):
         with dpg.table_row(parent=self.columnsTable, tag=f"input_row"):
-            dpg.add_text(str(len(tab.rows)+1))
-            for col in tab.columns.values():
+            dpg.add_text(rowsCount)
+            for col in columns.values():
                 dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
             dpg.add_button(label="Dodaj", tag="addRowButton")
             self.setRegistry(handlerTag="addRowButtonHandler", itemTag="addRowButton", handler=addRowHandler)
-
-        dpg.configure_item("columnsTableGroup", show=True)
 
     def setTables(self, data, selectTableHandler):
         self.__clearDatabaseTables()
