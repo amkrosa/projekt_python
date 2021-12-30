@@ -1,19 +1,23 @@
+import json
 import uuid
+from json import JSONEncoder
 from typing import Dict, Any, TypeVar, Union
 
 from domain.Table import Table
 from domain.column.Column import Column
+from lib.SingletonMeta import SingletonMeta
 
 T = TypeVar("T", bound=Union[Table, Column])
 
 
-class Repository:
-    def __init__(self):
-        self.__repository: Dict[uuid, T] = dict()
-
+class Repository(metaclass=SingletonMeta):
     @property
     def repository(self):
         return self.__repository
+
+    @repository.setter
+    def repository(self, repository):
+        self.__repository = {tableId: table for tableId, table in repository.items()}
 
     def __getitem__(self, item):
         return self.__repository[item]
