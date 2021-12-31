@@ -19,7 +19,6 @@ class TableView:
         self.__tablesTableRowCount = 0
         self.__columnTypes = ["str", "int", "float"]
         self.__databaseTables()
-        self.__createAddTableInput(addTableCallback)
         self.__createAddTableButton()
         self.__createColumnsTable()
         self.__createAddColumn(addColumnCallback)
@@ -72,12 +71,48 @@ class TableView:
                                                                          "data": afterData})
                 dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
 
-    def closeConfirmationModal(self):
-        dpg.configure_item("confirmation_modal", show=False)
+    def closeModal(self, itemTag):
+        dpg.configure_item(itemTag, show=False)
 
     def clearErrorPopup(self, itemTag):
         if dpg.does_item_exist(f"error_{itemTag}"):
             dpg.delete_item(f"error_{itemTag}")
+
+    def addColumnModal(self):
+        with dpg.table_row(parent="addColumnTable"):
+            count = len(dpg.get_item_children("addColumnTable", 1))
+            dpg.add_text(dpg.get_value("addColumnInput_modal"), tag=f"addColumn_name_{count}")
+            dpg.add_text(dpg.get_value("addColumnRadio_modal"), tag=f"addColumn_type_{count}")
+            print(self.addTableForm)
+
+    @property
+    def addTableForm(self):
+        names = [item for item in dpg.get_aliases() if item.startswith("addColumn_name_")]
+        types = [item for item in dpg.get_aliases() if item.startswith("addColumn_type_")]
+        return {
+             "name": dpg.get_value("addTableInput_modal"),
+             "columns": {dpg.get_value(names[index]): dpg.get_value(types[index]) for index in range(len(names))}
+        }
+
+    def addTableModal(self, callback, afterCallback):
+        if dpg.does_item_exist("createTable_modal"):
+            dpg.delete_item("createTable_modal")
+        with dpg.window(tag="createTable_modal", label="Dodaj tabele", modal=True, pos=self.__root.centerRelative(itemWidth=270,itemHeight=250),
+                        width=270, height=250):
+            dpg.add_input_text(tag="addTableInput_modal", hint="nazwa", label="Tabela", width=100)
+            dpg.add_input_text(tag="addColumnInput_modal", hint="nazwa", label="Kolumna", width=100)
+            dpg.add_radio_button(tag="addColumnRadio_modal", default_value="str", items=self.__columnTypes,
+                                 horizontal=True)
+            dpg.add_button(tag="addColumnButton_modal", label="Dodaj kolumne",
+                           callback=self.addColumnModal)
+            with dpg.table(tag="addColumnTable", header_row=True):
+                dpg.add_table_column(label="Kolumna")
+                dpg.add_table_column(label="Typ")
+
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="Stworz", callback=callback, user_data={"confirmation": True, "after": afterCallback})
+                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
+
 
     def __createAddTableInput(self, addTableCallback):
         dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="tablesTableGroup",
@@ -99,14 +134,15 @@ class TableView:
             dpg.add_button(tag="querySearchButton", label="Szukaj")
 
     def __databaseTables(self):
-        with dpg.group(parent="rootGroup", tag="tablesTableGroup", horizontal=False):
-            with dpg.table(tag="tablesTable", header_row=True, width=250):
-                dpg.add_table_column(tag="tablesTableNameColumn", label="Name")
-                dpg.add_table_column(tag="tablesTableRowsColumn", label="Rows")
+        if not dpg.does_item_exist("tablesTableGroup"):
+            dpg.add_group(parent="rootGroup", tag="tablesTableGroup", horizontal=False)
+        with dpg.table(tag="tablesTable", header_row=True, width=250, parent="tablesTableGroup"):
+            dpg.add_table_column(tag="tablesTableNameColumn", label="Name")
+            dpg.add_table_column(tag="tablesTableRowsColumn", label="Rows")
 
     def __clearDatabaseTables(self):
-        if dpg.does_item_exist("tablesTableDataGroup"):
-            dpg.delete_item("tablesTableGroup", children_only=True)
+        if dpg.does_item_exist("tablesTable"):
+            dpg.delete_item("tablesTable", children_only=False)
 
     def __createColumnsTable(self):
         with dpg.group(parent="rootGroup", tag="columnsTableGroup", show=False):
@@ -122,15 +158,11 @@ class TableView:
         radio = dpg.get_value("addColumnRadio")
         return name, radio
 
-    def addTable(self):
-        self.clearErrorPopup(itemTag="addTableButton")
-        id = uuid4()
-        data = dpg.get_value(self.addTableInput)
-
+    def addTable(self, name, tableId):
+        # self.clearErrorPopup(itemTag="addTableButton")
         with dpg.table_row(parent="tablesTable"):
-            dpg.add_text(data, tag=id.__str__())
-            dpg.add_text("0", tag=f"count_{id.__str__()}")
-        return id.__str__(), data
+            dpg.add_text(name, tag=tableId)
+            dpg.add_text("0", tag=f"count_{tableId}")
 
     def __setitem__(self, key, value):
         dpg.set_value(key, value)
@@ -177,13 +209,13 @@ class TableView:
 
     def setTables(self, data, selectTableHandler):
         self.__clearDatabaseTables()
-        print(data.items())
+        self.__databaseTables()
         for tableId, value in data.items():
             with dpg.table_row(parent="tablesTable"):
-                dpg.add_text(value.name, tag=tableId)
-                self.setRegistry(itemTag=tableId, handlerTag=f"table_{value.name}_handler",
+                dpg.add_text(value.name, tag=tableId.__str__())
+                self.setRegistry(itemTag=tableId.__str__(), handlerTag=f"table_{value.name}_handler",
                                              handler=selectTableHandler)
-                dpg.add_text(value.rowCount, tag=f"count_{tableId}")
+                dpg.add_text(value.rowCount, tag=f"count_{tableId.__str__()}")
 
     def readRowInput(self):
         items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]

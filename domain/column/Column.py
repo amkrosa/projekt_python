@@ -1,6 +1,4 @@
 import abc
-from typing import Callable, Any, Dict, List, Tuple
-
 
 class Column(metaclass=abc.ABCMeta):
     def __init__(self, name: str):

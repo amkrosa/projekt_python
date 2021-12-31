@@ -1,10 +1,13 @@
 import json
 import logging
+import uuid
 from json import JSONEncoder
 from uuid import uuid4
 
+from application.ColumnService import ColumnService
 from application.TableService import TableService
 from domain.Table import Table
+from domain.column.Column import Column
 from domain.column.FloatColumn import FloatColumn
 from domain.column.IntegerColumn import IntegerColumn
 from domain.column.TextColumn import TextColumn
@@ -23,10 +26,10 @@ class TableViewModel:
     def __init__(self, root: RootView):
         self.__repository = Repository()
         self.__tableService = TableService(self.__repository.repository)
-        self.__tableView = TableView(root, addTableCallback=self.handleAddTable,
+        self.__tableView = TableView(root, addTableCallback=self.handleOpenAddTable,
                                      addColumnCallback=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
-                                     handler=self.handleAddTable)
+                                     handler=self.handleOpenAddTable)
         self.__tableView.setRegistry(itemTag="addColumnButton", handlerTag="addColumnHandler",
                                      handler=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
@@ -37,21 +40,27 @@ class TableViewModel:
     def currentTable(self):
         return self.__repository.findByName(self.__tableView.currentTableSelection)
 
-    def handleAddTable(self):
-        val: str = self.__tableView.addTableInputValue()
-        if self.__repository.findByName(val) is not None:
-            self.__tableView.errorPopup(itemTag="addTableButton", text="Taki element juz istnieje")
-            return
-        if len(val.strip()) == 0:
-            self.__tableView.errorPopup(itemTag="addTableButton", text="Pole nie może być puste")
-            return
+    def handleOpenAddTable(self):
+        # val: str = self.__tableView.addTableInputValue()
+        # if self.__repository.findByName(val) is not None:
+        #     self.__tableView.errorPopup(itemTag="addTableButton", text="Taki element juz istnieje")
+        #     return
+        # if len(val.strip()) == 0:
+        #     self.__tableView.errorPopup(itemTag="addTableButton", text="Pole nie może być puste")
+        #     return
+        self.__tableView.addTableModal(callback=self.handleConfirmCreateTable, afterCallback=self.handleAddTable)
 
-        id, data = self.__tableView.addTable()
-        self.__tableView.setRegistry(itemTag=id, handlerTag=f"table_{data}_handler", handler=self.handleSelectTable)
-        table = Table(data, id)
+    def handleAddTable(self, data):
+        tableId = uuid4()
+        name = data["name"]
+        table = Table(name, tableId)
         table.setNameCallback(self.handleTableNameChanged)
         table.setRowsCountCallback(self.handleRowsCountChanged)
-        self.__repository.add(table, id=id)
+        print([(columnName, columnType) for columnName, columnType in data["columns"].items()])
+        [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in data["columns"].items()]
+        self.__tableView.addTable(name, tableId.__str__())
+        self.__repository.add(table, id=tableId.__str__())
+        self.__tableView.setRegistry(itemTag=tableId.__str__(), handlerTag=f"table_{data['name']}_handler", handler=self.handleSelectTable)
 
     def handleSelectTable(self, sender, app_data):
         tableId = app_data[1]
@@ -60,17 +69,7 @@ class TableViewModel:
 
     def handleAddColumn(self):
         columnName, columnType = self.__tableView.addColumn()
-        col = None
-
-        if columnType == "str":
-            col = TextColumn(columnName)
-        elif columnType == "int":
-            col = IntegerColumn(columnName)
-        elif columnType == "float":
-            col = FloatColumn(columnName)
-        else:
-            raise RuntimeError(f"Unexpected error has occured. Column type is: {columnType}")
-
+        col = ColumnService.createColumn(columnName, columnType)
         tab = self.currentTable
         tab.addColumn(col)
         self.refreshTableRows(tab)
@@ -94,15 +93,20 @@ class TableViewModel:
     #chce przekazac dane do
 
     def handleConfirm(self, sender, app_data, user_data):
-        self.__tableView.closeConfirmationModal()
+        self.__tableView.closeModal("confirmation_modal")
         if user_data["confirmation"]:
             user_data["after"](user_data["data"])
             self.refreshTableRows(self.currentTable)
 
+    def handleConfirmCreateTable(self, sender, app_data, user_data):
+        self.__tableView.closeModal("createTable_modal")
+        if user_data["confirmation"]:
+            user_data["after"](self.__tableView.addTableForm)
+            self.refreshTables()
+
     def handleDeleteRow(self, sender, app_data, user_data):
         row = user_data["row"]-1
         tab = self.currentTable
-        print(json.dumps(self.__repository, cls=Encoder))
         self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
 
     def handleQuerySearch(self):
@@ -126,3 +130,5 @@ class TableViewModel:
     def refreshTableRows(self, tab: Table, data=None):
         self.__tableView.setColumns(tab, tab.rows if data is None else data,
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
+    def refreshTables(self):
+        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)
