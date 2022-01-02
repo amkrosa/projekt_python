@@ -10,6 +10,7 @@ from ui.root.RootView import RootView
 from ui.widgets.AddTableModal import AddTableModal
 from ui.widgets.ConfirmationModal import ConfirmationModal
 from ui.widgets.ErrorPopup import ErrorPopup
+from ui.widgets.TablesTable import TablesTable
 
 
 class TableView:
@@ -21,7 +22,7 @@ class TableView:
         self.__columnsTable = "columnsTable"
         self.__tablesTableRowCount = 0
         self.__columnTypes = ["str", "int", "float"]
-        self.__databaseTables()
+        self.__tablesTable = TablesTable()
         self.__createAddTableButton()
         self.__createColumnsTable()
         self.__createAddColumn(addColumnCallback)
@@ -66,11 +67,11 @@ class TableView:
                       width=250, height=90, center=self.__root.centerRelative(250, 150))
 
     def __createAddTableInput(self, addTableCallback):
-        dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="tablesTableGroup",
+        dpg.add_input_text(tag="addTableInput", before=self.tablesTable.tag, label="Nazwa", parent="tablesTableGroup",
                            width=100, callback=addTableCallback, on_enter=True)
 
     def __createAddTableButton(self):
-        dpg.add_button(tag="addTableButton", before=self.tablesTable, label="Dodaj tabele", parent="tablesTableGroup")
+        dpg.add_button(tag="addTableButton", before=self.tablesTable.tag, label="Dodaj tabele", parent="tablesTableGroup")
 
     def __createAddColumn(self, addColumnCallback):
         dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup",
@@ -85,17 +86,6 @@ class TableView:
         with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True, width=150):
             dpg.add_input_text(tag="querySearchInput", hint="lambda row: row[\"id\"]>3")
             dpg.add_button(tag="querySearchButton", label="Szukaj")
-
-    def __databaseTables(self):
-        if not dpg.does_item_exist("tablesTableGroup"):
-            dpg.add_group(parent="rootGroup", tag="tablesTableGroup", horizontal=False)
-        with dpg.table(tag="tablesTable", header_row=True, width=250, parent="tablesTableGroup"):
-            dpg.add_table_column(tag="tablesTableNameColumn", label="Name")
-            dpg.add_table_column(tag="tablesTableRowsColumn", label="Rows")
-
-    def __clearDatabaseTables(self):
-        if dpg.does_item_exist("tablesTable"):
-            dpg.delete_item("tablesTable", children_only=False)
 
     def __createColumnsTable(self):
         with dpg.group(parent="rootGroup", tag="columnsTableGroup", show=False):
@@ -115,9 +105,6 @@ class TableView:
         with dpg.table_row(parent="tablesTable"):
             dpg.add_text(name, tag=tableId)
             dpg.add_text("0", tag=f"count_{tableId}")
-
-    def __setitem__(self, key, value):
-        dpg.set_value(key, value)
 
     def setRegistry(self, handlerTag, itemTag, handler, userData=None):
         if dpg.does_alias_exist(handlerTag):
@@ -156,12 +143,12 @@ class TableView:
             dpg.add_text(rowsCount)
             for col in columns.values():
                 dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
-            dpg.add_button(label="Dodaj", tag="addRowButton")
-            self.setRegistry(handlerTag="addRowButtonHandler", itemTag="addRowButton", handler=addRowHandler)
+            dpg.add_button(label="Dodaj", tag="addRowButton", callback=addRowHandler, user_data=self.readRowInput)
+
 
     def setTables(self, data, selectTableHandler):
-        self.__clearDatabaseTables()
-        self.__databaseTables()
+        self.__tablesTable.clear()
+        self.__tablesTable = TablesTable()
         for tableId, value in data.items():
             with dpg.table_row(parent="tablesTable"):
                 dpg.add_text(value.name, tag=tableId.__str__())
@@ -180,3 +167,9 @@ class TableView:
             return "int"
         elif type == float:
             return "float"
+
+    def __setitem__(self, key, value):
+        dpg.set_value(key, value)
+
+    def set(self, key, value):
+        dpg.set_value(key, value)
