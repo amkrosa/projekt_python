@@ -2,10 +2,9 @@ import logging
 
 import dearpygui.dearpygui as dpg
 
-from ui.root.RootView import RootView
 from ui.root.RootViewModel import RootViewModel
 
-if __name__ == '__main__':
+def run():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
     dpg.create_context()
     RootViewModel()
@@ -13,4 +12,10 @@ if __name__ == '__main__':
     dpg.show_viewport()
     dpg.set_primary_window("root", True)
     dpg.start_dearpygui()
+
+def exit():
     dpg.destroy_context()
+
+if __name__ == '__main__':
+    run()
+    exit()
