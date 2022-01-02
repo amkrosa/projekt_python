@@ -7,6 +7,8 @@ import dearpygui.dearpygui as dpg
 from domain.Table import Table
 from domain.column.Column import Column
 from ui.root.RootView import RootView
+from ui.widgets.AddTableModal import AddTableModal
+from ui.widgets.ErrorPopup import ErrorPopup
 
 
 class TableView:
@@ -52,66 +54,16 @@ class TableView:
         return dpg.get_value("querySearchInput")
 
     def errorPopup(self, itemTag, text):
-        self.clearErrorPopup(itemTag)
-        buttonPos = dpg.get_item_pos(itemTag)
-        buttonPos[0]+=110
-        with dpg.window(tag=f"error_{itemTag}", popup=True, show=True, width=120, height=50,
-                        min_size=(100,20), no_resize=True, no_move=True,
-                        pos=buttonPos):
-            dpg.add_text(text)
-
-    def confirmationModal(self, text, callback, afterCallback, afterData):
-        if dpg.does_item_exist("confirmation_modal"):
-            dpg.delete_item("confirmation_modal")
-
-        with dpg.window(modal=True, tag="confirmation_modal", pos=self.__root.centerRelative(200,100), width=200, height=100):
-            dpg.add_text(text)
-            with dpg.group(horizontal=True):
-                dpg.add_button(label="OK", callback=callback, user_data={"confirmation": True, "after": afterCallback,
-                                                                         "data": afterData})
-                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
-
-    def closeModal(self, itemTag):
-        dpg.configure_item(itemTag, show=False)
-
-    def clearErrorPopup(self, itemTag):
-        if dpg.does_item_exist(f"error_{itemTag}"):
-            dpg.delete_item(f"error_{itemTag}")
-
-    def addColumnModal(self):
-        with dpg.table_row(parent="addColumnTable"):
-            count = len(dpg.get_item_children("addColumnTable", 1))
-            dpg.add_text(dpg.get_value("addColumnInput_modal"), tag=f"addColumn_name_{count}")
-            dpg.add_text(dpg.get_value("addColumnRadio_modal"), tag=f"addColumn_type_{count}")
-            print(self.addTableForm)
+        return ErrorPopup(itemTag, text)
 
     @property
     def addTableForm(self):
-        names = [item for item in dpg.get_aliases() if item.startswith("addColumn_name_")]
-        types = [item for item in dpg.get_aliases() if item.startswith("addColumn_type_")]
-        return {
-             "name": dpg.get_value("addTableInput_modal"),
-             "columns": {dpg.get_value(names[index]): dpg.get_value(types[index]) for index in range(len(names))}
-        }
+        if isinstance(self.__addTableModal, AddTableModal):
+            return self.__addTableModal.form
 
     def addTableModal(self, callback, afterCallback):
-        if dpg.does_item_exist("createTable_modal"):
-            dpg.delete_item("createTable_modal")
-        with dpg.window(tag="createTable_modal", label="Dodaj tabele", modal=True, pos=self.__root.centerRelative(itemWidth=270,itemHeight=250),
-                        width=270, height=250):
-            dpg.add_input_text(tag="addTableInput_modal", hint="nazwa", label="Tabela", width=100)
-            dpg.add_input_text(tag="addColumnInput_modal", hint="nazwa", label="Kolumna", width=100)
-            dpg.add_radio_button(tag="addColumnRadio_modal", default_value="str", items=self.__columnTypes,
-                                 horizontal=True)
-            dpg.add_button(tag="addColumnButton_modal", label="Dodaj kolumne",
-                           callback=self.addColumnModal)
-            with dpg.table(tag="addColumnTable", header_row=True):
-                dpg.add_table_column(label="Kolumna")
-                dpg.add_table_column(label="Typ")
-
-            with dpg.group(horizontal=True):
-                dpg.add_button(label="Stworz", callback=callback, user_data={"confirmation": True, "after": afterCallback})
-                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
+        self.__addTableModal = AddTableModal(callback=callback, afterCallback=afterCallback,
+                                             width=250, height=150, center=self.__root.centerRelative(250,150))
 
 
     def __createAddTableInput(self, addTableCallback):

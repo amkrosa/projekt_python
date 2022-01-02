@@ -41,26 +41,21 @@ class TableViewModel:
         return self.__repository.findByName(self.__tableView.currentTableSelection)
 
     def handleOpenAddTable(self):
-        # val: str = self.__tableView.addTableInputValue()
-        # if self.__repository.findByName(val) is not None:
-        #     self.__tableView.errorPopup(itemTag="addTableButton", text="Taki element juz istnieje")
-        #     return
-        # if len(val.strip()) == 0:
-        #     self.__tableView.errorPopup(itemTag="addTableButton", text="Pole nie może być puste")
-        #     return
         self.__tableView.addTableModal(callback=self.handleConfirmCreateTable, afterCallback=self.handleAddTable)
 
     def handleAddTable(self, data):
-        tableId = uuid4()
+        tableId = uuid4().__str__()
         name = data["name"]
         table = Table(name, tableId)
         table.setNameCallback(self.handleTableNameChanged)
         table.setRowsCountCallback(self.handleRowsCountChanged)
         print([(columnName, columnType) for columnName, columnType in data["columns"].items()])
-        [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in data["columns"].items()]
-        self.__tableView.addTable(name, tableId.__str__())
-        self.__repository.add(table, id=tableId.__str__())
-        self.__tableView.setRegistry(itemTag=tableId.__str__(), handlerTag=f"table_{data['name']}_handler", handler=self.handleSelectTable)
+        [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
+         data["columns"].items()]
+        self.__tableView.addTable(name, tableId)
+        self.__repository.add(table, id=tableId)
+        self.__tableView.setRegistry(itemTag=tableId, handlerTag=f"table_{data['name']}_handler",
+                                     handler=self.handleSelectTable)
 
     def handleSelectTable(self, sender, app_data):
         tableId = app_data[1]
@@ -76,21 +71,17 @@ class TableViewModel:
 
     def handleAddRow(self):
         values = self.__tableView.readRowInput()
-        tab = self.currentTable
+        tab: Table = self.currentTable
         row = {}
         for index, col in enumerate(tab.columns.values()):
             try:
                 row[col.name] = col.cast(values[col.name])
             except TypeError:
-                self.__tableView.errorPopup(itemTag="addRowButton", text=f"Wartosc {values[col.name]} ma niepoprawny typ")
+                self.__tableView.errorPopup(itemTag="addRowButton",
+                                            text=f"Wartosc {values[col.name]} ma niepoprawny typ")
                 return
         tab.push(row)
         self.refreshTableRows(tab)
-
-    #klikam guzik usunięcia
-    #wywoluje sie callback guziku usuniecia (handleDeleteRow)
-    #klikam OK, wywoluje sie callback guziku OK (handleConfirmationModal)
-    #chce przekazac dane do
 
     def handleConfirm(self, sender, app_data, user_data):
         self.__tableView.closeModal("confirmation_modal")
@@ -105,7 +96,7 @@ class TableViewModel:
             self.refreshTables()
 
     def handleDeleteRow(self, sender, app_data, user_data):
-        row = user_data["row"]-1
+        row = user_data["row"] - 1
         tab = self.currentTable
         self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
 
@@ -115,9 +106,9 @@ class TableViewModel:
         try:
             data = self.__tableService.query(tab.name, eval(query))
         except Exception as e:
-             self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
-             logger.debug(f"{e.__str__()}")
-             return
+            self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
+            logger.debug(f"{e.__str__()}")
+            return
 
         self.refreshTableRows(tab, data)
 
@@ -130,5 +121,6 @@ class TableViewModel:
     def refreshTableRows(self, tab: Table, data=None):
         self.__tableView.setColumns(tab, tab.rows if data is None else data,
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
+
     def refreshTables(self):
         self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)
