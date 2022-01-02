@@ -42,7 +42,7 @@ class TableViewModel:
                                      handler=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
                                      handler=self.handleQuerySearch)
-        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)
+        self.refreshTables()
 
     @property
     def view(self):
@@ -63,8 +63,8 @@ class TableViewModel:
         table.setRowsCountCallback(self.handleRowsCountChanged)
         [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
          data["columns"].items()]
-        self.__tableView.addTable(name, tableId)
         self.__repository.add(table, id=tableId)
+        self.refreshTables()
         self.__tableView.setRegistry(itemTag=tableId, handlerTag=f"table_{data['name']}_handler",
                                      handler=self.handleSelectTable)
 
@@ -80,8 +80,15 @@ class TableViewModel:
         tab.addColumn(col)
         self.refreshTableRows(tab)
 
-    def handleAddRow(self):
-        values = self.__tableView.readRowInput()
+    def handleAddRow(self, sender, app_data, user_data):
+        """	Handles click on addRow button. Displays popup on error
+
+        Args:
+        	user_data (Callable): callback function that returns input row as dictionary
+        Returns:
+        	None
+        """
+        values = user_data()
         tab: Table = self.currentTable
         row = {}
         for index, col in enumerate(tab.columns.values()):
@@ -95,6 +102,13 @@ class TableViewModel:
         self.refreshTableRows(tab)
 
     def handleConfirm(self, sender, app_data, user_data):
+        """Handles click on button in ConfirmationModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
+
+        Args:
+        	user_data (dict): dictionary with modal object, confirmation boolean, callback function if confimred and data if confirmed
+        Returns:
+        	None
+        """
         modal: ConfirmationModal = user_data["modal"]
         modal.close()
         if user_data["confirmation"]:
@@ -102,6 +116,13 @@ class TableViewModel:
             self.refreshTableRows(self.currentTable)
 
     def handleConfirmCreateTable(self, sender, app_data, user_data):
+        """Handles click on button in AddTableModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
+
+        Args:
+        	user_data (dict): dictionary with modal object, confirmation boolean, callback function if confirmed and data if confirmed
+        Returns:
+        	None
+        """
         modal: AddTableModal = user_data["modal"]
         modal.close()
         if user_data["confirmation"]:
@@ -109,11 +130,25 @@ class TableViewModel:
             self.refreshTables()
 
     def handleDeleteRow(self, sender, app_data, user_data):
+        """Handles click on deleteRowButton, which displays ConfirmationModal.
+
+        Args:
+        	user_data (dict): dictionary with row number
+        Returns:
+        	None
+        """
         row = user_data["row"] - 1
         tab = self.currentTable
         self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
 
     def handleQuerySearch(self):
+        """Handles click on querySearchButton, which filters data via TableService.query.
+
+        Args:
+        	user_data (str): current query search
+        Returns:
+        	None
+        """
         query = self.__tableView.currentQuerySearch
         tab = self.currentTable
         try:
