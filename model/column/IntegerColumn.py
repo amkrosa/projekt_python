@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from domain.column.Column import Column
+from model.column.Column import Column
 from lib.Observable import Observable
 
 

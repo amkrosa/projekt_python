@@ -6,11 +6,11 @@ from uuid import uuid4
 
 from application.ColumnService import ColumnService
 from application.TableService import TableService
-from domain.Table import Table
-from domain.column.Column import Column
-from domain.column.FloatColumn import FloatColumn
-from domain.column.IntegerColumn import IntegerColumn
-from domain.column.TextColumn import TextColumn
+from model.Table import Table
+from model.column.Column import Column
+from model.column.FloatColumn import FloatColumn
+from model.column.IntegerColumn import IntegerColumn
+from model.column.TextColumn import TextColumn
 from infrastructure.Repository import Repository
 from infrastructure.json.Encoder import Encoder
 from lib.Observable import Observable

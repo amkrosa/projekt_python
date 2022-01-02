@@ -1,7 +1,7 @@
 import uuid
 from typing import Callable, Any, Dict
 
-from domain.Table import Table
+from model.Table import Table
 from infrastructure.Repository import Repository
 
 

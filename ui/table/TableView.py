@@ -4,8 +4,8 @@ from uuid import uuid4
 from dearpygui.dearpygui import window
 import dearpygui.dearpygui as dpg
 
-from domain.Table import Table
-from domain.column.Column import Column
+from model.Table import Table
+from model.column.Column import Column
 from ui.root.RootView import RootView
 from ui.widgets.AddTableModal import AddTableModal
 from ui.widgets.ConfirmationModal import ConfirmationModal

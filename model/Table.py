@@ -1,7 +1,7 @@
 import json
 from typing import Type, TypeVar, Union, Dict, Any
 
-from domain.Row import Row
+from model.Row import Row
 from lib.Observable import Observable
 
 C = TypeVar("C", bound="Column")

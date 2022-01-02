@@ -1,10 +1,10 @@
 from typing import List, Tuple, Callable, Any
 
 from application.TableService import TableService
-from domain.column.Column import Column
-from domain.column.FloatColumn import FloatColumn
-from domain.column.IntegerColumn import IntegerColumn
-from domain.column.TextColumn import TextColumn
+from model.column.Column import Column
+from model.column.FloatColumn import FloatColumn
+from model.column.IntegerColumn import IntegerColumn
+from model.column.TextColumn import TextColumn
 from infrastructure.Repository import Repository
 
 

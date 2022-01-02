@@ -1,23 +1,23 @@
 from typing import List, Tuple
 
-from domain.column.Column import Column
+from model.column.Column import Column
 from lib.Observable import Observable
 
 
-class TextColumn(Column):
+class FloatColumn(Column):
     def __init__(self, name):
         super().__init__(name)
-        self.__data: dict[int, str] = dict()
+        #self.__data: dict[int, float] = dict()
 
     @property
     def type(self):
-        return str
+        return float
 
     def cast(self, value):
         try:
-            return str(value)
+            return float(value)
         except ValueError:
-            raise TypeError("TextColumn may consists only of str")
+            raise TypeError("FloatColumn may consists only of floats")
 
     # @property
     # def data(self) -> dict:
@@ -41,4 +41,3 @@ class TextColumn(Column):
     #             self.__data[next] = obs
     #         else:
     #             raise TypeError("IntegerColumn may consists only of integers")
-

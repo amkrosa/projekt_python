@@ -2,11 +2,11 @@ import logging
 from json import JSONDecoder
 from typing import Any, Callable
 
-from domain.Row import Row
-from domain.Table import Table
-from domain.column.FloatColumn import FloatColumn
-from domain.column.IntegerColumn import IntegerColumn
-from domain.column.TextColumn import TextColumn
+from model.Row import Row
+from model.Table import Table
+from model.column.FloatColumn import FloatColumn
+from model.column.IntegerColumn import IntegerColumn
+from model.column.TextColumn import TextColumn
 
 logger = logging.getLogger(__name__)
 

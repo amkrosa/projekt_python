@@ -3,8 +3,8 @@ import uuid
 from json import JSONEncoder
 from typing import Dict, Any, TypeVar, Union
 
-from domain.Table import Table
-from domain.column.Column import Column
+from model.Table import Table
+from model.column.Column import Column
 from lib.SingletonMeta import SingletonMeta
 
 T = TypeVar("T", bound=Union[Table, Column])

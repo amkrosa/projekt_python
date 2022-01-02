@@ -1,9 +1,9 @@
 from json import JSONEncoder
 from typing import Any
 
-from domain.Row import Row
-from domain.Table import Table
-from domain.column.Column import Column
+from model.Row import Row
+from model.Table import Table
+from model.column.Column import Column
 from infrastructure.Repository import Repository
 from lib.Observable import Observable
 
