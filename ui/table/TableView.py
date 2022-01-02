@@ -56,11 +56,6 @@ class TableView:
     def errorPopup(self, itemTag, text):
         return ErrorPopup(itemTag, text)
 
-    @property
-    def addTableForm(self):
-        if isinstance(self.__addTableModal, AddTableModal):
-            return self.__addTableModal.form
-
     def addTableModal(self, callback, afterCallback):
         self.__addTableModal = AddTableModal(callback=callback, afterCallback=afterCallback,
                                              width=250, height=150, center=self.__root.centerRelative(250,150))

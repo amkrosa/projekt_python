@@ -21,7 +21,7 @@ class AddTableModal:
 
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Stworz", callback=callback,
-                               user_data={"confirmation": True, "after": afterCallback})
+                               user_data={"confirmation": True, "after": afterCallback, "modal": self})
                 dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
 
     @property

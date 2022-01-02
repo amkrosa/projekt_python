@@ -18,6 +18,7 @@ import dearpygui.dearpygui as dpg
 
 from ui.root.RootView import RootView
 from ui.table.TableView import TableView
+from ui.widgets.AddTableModal import AddTableModal
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,10 @@ class TableViewModel:
         self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
                                      handler=self.handleQuerySearch)
         self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)
+
+    @property
+    def view(self):
+        return self.__tableView
 
     @property
     def currentTable(self):
@@ -90,9 +95,10 @@ class TableViewModel:
             self.refreshTableRows(self.currentTable)
 
     def handleConfirmCreateTable(self, sender, app_data, user_data):
-        self.__tableView.closeModal("createTable_modal")
+        modal: AddTableModal = user_data["modal"]
+        modal.close()
         if user_data["confirmation"]:
-            user_data["after"](self.__tableView.addTableForm)
+            user_data["after"](modal.form)
             self.refreshTables()
 
     def handleDeleteRow(self, sender, app_data, user_data):

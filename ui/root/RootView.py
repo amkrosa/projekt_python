@@ -1,6 +1,3 @@
-import tkinter
-
-import tk
 from dearpygui.dearpygui import window
 import dearpygui.dearpygui as dpg
 
