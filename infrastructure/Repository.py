@@ -22,7 +22,7 @@ class Repository(metaclass=SingletonMeta):
     def __getitem__(self, item):
         return self.__repository[item]
 
-    def add(self, arg, id=uuid.uuid4()):
+    def add(self, arg, id=uuid.uuid4().__str__()):
         self.repository[id] = arg
 
     def remove(self, arg: uuid):

@@ -1,4 +1,5 @@
-from typing import Callable, Any
+import uuid
+from typing import Callable, Any, Dict
 
 from domain.Table import Table
 from infrastructure.Repository import Repository
@@ -8,13 +9,19 @@ class TableService:
     def __init__(self, repository: Repository):
         self.__repository: Repository = repository
 
-    def push(self, name):
-        self.__repository.add(Table(name))
+    def addTable(self, tableId, name):
+        self.__repository.add(Table(name, tableId))
+
+    def push(self, tableName, row):
+        self.getTable(name=tableName).push(row)
 
     def removeTable(self, name):
         self.__repository.remove(name)
 
-    def getTable(self, name):
+    def getTables(self) -> Dict[Any, Table]:
+        return self.__repository.repository
+
+    def getTable(self, name) -> Table:
         for value in self.__repository.repository.values():
             if value.name == name:
                 return value

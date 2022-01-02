@@ -19,9 +19,6 @@ class ColumnService:
     def addColumn(self, tableName, columnName):
         self.__tableService.getTable(tableName).addColumn(columnName)
 
-    def push(self, tableName, columnName, data: List or Tuple):
-        self.__tableService.getTable(tableName)[columnName].data = data
-
     @classmethod
     def createColumn(cls, columnName, columnType):
         if columnType == "str":
