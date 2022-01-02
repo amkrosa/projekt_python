@@ -14,7 +14,6 @@ class RootViewModel:
                 repo = Repository()
                 loaded = json.load(file, cls=Decoder)
                 repo.repository = loaded
-                #print(f"rows: {repo.findByName('suba daj').rows}")
         else:
             repo = Repository()
             repo.repository = {}

@@ -22,6 +22,9 @@ class Repository(metaclass=SingletonMeta):
     def __getitem__(self, item):
         return self.__repository[item]
 
+    def __len__(self):
+        return len(self.repository)
+
     def add(self, arg, id=uuid.uuid4().__str__()):
         self.repository[id] = arg
 

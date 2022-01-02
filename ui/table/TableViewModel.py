@@ -19,6 +19,7 @@ import dearpygui.dearpygui as dpg
 from ui.root.RootView import RootView
 from ui.table.TableView import TableView
 from ui.widgets.AddTableModal import AddTableModal
+from ui.widgets.ConfirmationModal import ConfirmationModal
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,12 @@ class TableViewModel:
     def __init__(self, root: RootView):
         self.__repository = Repository()
         self.__tableService = TableService(self.__repository.repository)
+
+        if len(self.__repository) != 0:
+            for table in self.__repository.repository.values():
+                table.setNameCallback(self.handleTableNameChanged)
+                table.setRowsCountCallback(self.handleRowsCountChanged)
+
         self.__tableView = TableView(root, addTableCallback=self.handleOpenAddTable,
                                      addColumnCallback=self.handleAddColumn)
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
@@ -54,7 +61,6 @@ class TableViewModel:
         table = Table(name, tableId)
         table.setNameCallback(self.handleTableNameChanged)
         table.setRowsCountCallback(self.handleRowsCountChanged)
-        print([(columnName, columnType) for columnName, columnType in data["columns"].items()])
         [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
          data["columns"].items()]
         self.__tableView.addTable(name, tableId)
@@ -89,7 +95,8 @@ class TableViewModel:
         self.refreshTableRows(tab)
 
     def handleConfirm(self, sender, app_data, user_data):
-        self.__tableView.closeModal("confirmation_modal")
+        modal: ConfirmationModal = user_data["modal"]
+        modal.close()
         if user_data["confirmation"]:
             user_data["after"](user_data["data"])
             self.refreshTableRows(self.currentTable)

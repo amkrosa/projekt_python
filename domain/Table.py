@@ -46,11 +46,12 @@ class Table:
     def push(self, row: dict):
         self.__verifyRow(row)
         self.__rows.append(Observable(Row(row)))
-        self.__rowCount.set(self.__rowCount.get()+1)
+        self.__rowCount.set(self.rowCount+1)
 
     def remove(self, rowIndex):
         try:
             self.__rows.pop(rowIndex)
+            self.__rowCount.set(self.rowCount - 1)
         except Exception:
             raise ValueError("Invalid index")
 

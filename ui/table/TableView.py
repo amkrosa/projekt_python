@@ -8,6 +8,7 @@ from domain.Table import Table
 from domain.column.Column import Column
 from ui.root.RootView import RootView
 from ui.widgets.AddTableModal import AddTableModal
+from ui.widgets.ConfirmationModal import ConfirmationModal
 from ui.widgets.ErrorPopup import ErrorPopup
 
 
@@ -57,9 +58,12 @@ class TableView:
         return ErrorPopup(itemTag, text)
 
     def addTableModal(self, callback, afterCallback):
-        self.__addTableModal = AddTableModal(callback=callback, afterCallback=afterCallback,
-                                             width=250, height=150, center=self.__root.centerRelative(250,150))
+        AddTableModal(callback=callback, afterCallback=afterCallback,
+                      width=250, height=150, center=self.__root.centerRelative(250, 150))
 
+    def confirmationModal(self, text, callback, afterCallback, afterData):
+        ConfirmationModal(text=text, afterData=afterData, callback=callback, afterCallback=afterCallback,
+                      width=250, height=90, center=self.__root.centerRelative(250, 150))
 
     def __createAddTableInput(self, addTableCallback):
         dpg.add_input_text(tag="addTableInput", before=self.tablesTable, label="Nazwa", parent="tablesTableGroup",
@@ -71,9 +75,11 @@ class TableView:
     def __createAddColumn(self, addColumnCallback):
         dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup",
                            width=100, callback=addColumnCallback, on_enter=True)
-        dpg.add_radio_button(tag="addColumnRadio", default_value="str", items=self.__columnTypes, before=self.columnsTable,
+        dpg.add_radio_button(tag="addColumnRadio", default_value="str", items=self.__columnTypes,
+                             before=self.columnsTable,
                              horizontal=True)
-        dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne", parent="columnsTableGroup")
+        dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne",
+                       parent="columnsTableGroup")
 
     def __createQuerySearch(self):
         with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True, width=150):
@@ -106,7 +112,6 @@ class TableView:
         return name, radio
 
     def addTable(self, name, tableId):
-        # self.clearErrorPopup(itemTag="addTableButton")
         with dpg.table_row(parent="tablesTable"):
             dpg.add_text(name, tag=tableId)
             dpg.add_text("0", tag=f"count_{tableId}")
@@ -114,7 +119,7 @@ class TableView:
     def __setitem__(self, key, value):
         dpg.set_value(key, value)
 
-    def setRegistry(self, handlerTag, itemTag, handler, userData = None):
+    def setRegistry(self, handlerTag, itemTag, handler, userData=None):
         if dpg.does_alias_exist(handlerTag):
             dpg.remove_alias(handlerTag)
         with dpg.item_handler_registry(tag=handlerTag):
@@ -131,7 +136,7 @@ class TableView:
         dpg.add_table_column(parent=self.columnsTable, tag=f"inputColumn")
 
         self.__setColumnsData(tab.name, data, deleteRowHandler)
-        self.__setColumnsInput(str(len(tab.rows)+1), tab.columns, addRowHandler)
+        self.__setColumnsInput(str(len(tab.rows) + 1), tab.columns, addRowHandler)
 
         dpg.configure_item("columnsTableGroup", show=True)
 
@@ -161,12 +166,12 @@ class TableView:
             with dpg.table_row(parent="tablesTable"):
                 dpg.add_text(value.name, tag=tableId.__str__())
                 self.setRegistry(itemTag=tableId.__str__(), handlerTag=f"table_{value.name}_handler",
-                                             handler=selectTableHandler)
+                                 handler=selectTableHandler)
                 dpg.add_text(value.rowCount, tag=f"count_{tableId.__str__()}")
 
     def readRowInput(self):
         items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]
-        return {item.split("_")[3]: (dpg.get_value(item) if dpg.get_value(item)!="" else None) for item in items}
+        return {item.split("_")[3]: (dpg.get_value(item) if dpg.get_value(item) != "" else None) for item in items}
 
     def __getTypeText(self, type):
         if type == str:
