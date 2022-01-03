@@ -14,7 +14,7 @@ from ui.widgets.TablesTable import TablesTable
 
 
 class TableView:
-    def __init__(self, root: RootView, addTableCallback, addColumnCallback, querySearchCallback):
+    def __init__(self, root: RootView, addTableCallback, addColumnCallback, querySearchCallback, refreshCallback):
         self.__root = root
         self.__addTableButton = "addTableButton"
         self.__tablesTable = "tablesTable"
@@ -26,7 +26,7 @@ class TableView:
         self.__createAddTableButton(addTableCallback)
         self.__createColumnsTable()
         self.__createAddColumn(addColumnCallback)
-        self.__createQuerySearch(querySearchCallback)
+        self.__createQuerySearch(querySearchCallback, refreshCallback)
 
     @property
     def addTableButton(self):
@@ -83,11 +83,12 @@ class TableView:
         dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne",
                        parent="columnsTableGroup", callback=handler)
 
-    def __createQuerySearch(self, handler):
-        with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True, width=150):
-            dpg.add_input_text(tag="querySearchInput", hint="lambda row: row[\"id\"]>3")
+    def __createQuerySearch(self, handler, resetHandler):
+        with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True):
+            dpg.add_input_text(tag="querySearchInput", hint="lambda row: row[\"id\"]>3", width=250)
             dpg.add_button(tag="querySearchButton", label="Szukaj", callback=handler,
-                           user_data={"dataCallback": lambda tag: dpg.get_value(tag), "data": "querySearchInput"})
+                           user_data={"dataCallback": lambda tag: dpg.get_value(tag), "data": "querySearchInput"}, width=75)
+            dpg.add_button(tag="querySearchResetButton", label="Reset", callback=resetHandler, width=75)
 
     def __createColumnsTable(self):
         with dpg.group(parent="rootGroup", tag="columnsTableGroup", show=False):

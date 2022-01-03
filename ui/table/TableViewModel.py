@@ -37,7 +37,8 @@ class TableViewModel:
                 table.setRowsCountCallback(self.handleRowsCountChanged)
 
         self.__tableView = TableView(root, addTableCallback=self.handleOpenAddTable,
-                                     addColumnCallback=self.handleAddColumn, querySearchCallback=self.handleQuerySearch)
+                                     addColumnCallback=self.handleAddColumn, querySearchCallback=self.handleQuerySearch,
+                                     refreshCallback=lambda sender, app_data, user_data: self.refreshTableRows())
 
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
                                      handler=self.handleOpenAddTable)
@@ -156,7 +157,7 @@ class TableViewModel:
              logger.debug(f"{e.__str__()}")
              return
 
-        self.refreshTableRows(tab, data)
+        self.refreshTableRows(data=data)
 
     def handleTableNameChanged(self, data, uuid):
         self.__tableView[uuid] = data
@@ -164,8 +165,9 @@ class TableViewModel:
     def handleRowsCountChanged(self, data, uuid):
         self.__tableView[f"count_{uuid}"] = data
 
-    def refreshTableRows(self, tab: Table, data=None):
+    def refreshTableRows(self, table=None, data=None):
         logging.debug("refreshTableRows called")
+        tab = self.currentTable if table is None else table
         self.__tableView.setColumns(tab, tab.rows if data is None else data,
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
 
