@@ -60,7 +60,7 @@ class TableView:
 
     def addTableModal(self, callback, afterCallback):
         AddTableModal(callback=callback, afterCallback=afterCallback,
-                      width=250, height=150, center=self.__root.centerRelative(250, 150))
+                      width=250, height=270, center=self.__root.centerRelative(250, 150))
 
     def confirmationModal(self, text, callback, afterCallback, afterData):
         ConfirmationModal(text=text, afterData=afterData, callback=callback, afterCallback=afterCallback,
@@ -146,17 +146,27 @@ class TableView:
                 dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
             dpg.add_button(label="Dodaj", tag="addRowButton", callback=addRowHandler, user_data=self.readRowInput)
 
+    def hideColumns(self):
+        dpg.configure_item("columnsTableGroup", show=False)
+        self.__clearColumnsTable()
+
     def setTables(self, data, selectTableHandler, deleteTableHandler):
         self.__tablesTable.clear()
         self.__tablesTable = TablesTable()
         for tableId, value in data.items():
             with dpg.table_row(parent="tablesTable"):
-                dpg.add_text(value.name, tag=tableId.__str__())
-                self.setRegistry(itemTag=tableId.__str__(), handlerTag=f"table_{value.name}_handler",
-                                 handler=selectTableHandler)
+                dpg.add_selectable(label=value.name, tag=f"table_{tableId.__str__()}", callback=selectTableHandler, user_data=self.__clearTableSelection)
                 dpg.add_text(value.rowCount, tag=f"count_{tableId.__str__()}")
                 dpg.add_button(label="Usun", tag=f"deleteTableButton_{tableId.__str__()}", callback=deleteTableHandler,
-                               user_data=tableId.__str__())
+                               user_data={"id":tableId.__str__(), "currentTable": lambda: self.currentTableSelection})
+
+    def __clearTableSelection(self, currentSelection=None):
+        items = [item for item in dpg.get_aliases() if item.startswith("table_")]
+        for item in items:
+            if not item.split("_")[1] == currentSelection:
+                dpg.set_value(item, False)
+            else:
+                dpg.set_value(item, True)
 
     def readRowInput(self):
         items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]

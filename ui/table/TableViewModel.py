@@ -64,15 +64,17 @@ class TableViewModel:
         table = Table(name, tableId)
         table.setNameCallback(self.handleTableNameChanged)
         table.setRowsCountCallback(self.handleRowsCountChanged)
+        print(data["columns"])
         [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
          data["columns"].items()]
+        table.addCallback(self.refreshTableRows)
         self.__repository.add(table, id=tableId)
-        self.__tableView.setRegistry(itemTag=tableId, handlerTag=f"table_{data['name']}_handler",
-                                     handler=self.handleSelectTable)
 
-    def handleSelectTable(self, sender, app_data):
-        tableId = app_data[1]
+    def handleSelectTable(self, sender, app_data, user_data):
+        print(sender, app_data, user_data)
+        tableId = sender.split("_")[1]
         tab = self.__repository[tableId]
+        user_data(tableId)
         self.refreshTableRows(tab)
 
     def handleAddColumn(self):
@@ -113,6 +115,21 @@ class TableViewModel:
         modal.close()
         if user_data["confirmation"]:
             user_data["after"](user_data["data"])
+
+    def handleConfirmDeleteTable(self, sender, app_data, user_data):
+        """Handles click on button in ConfirmationModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
+
+        Args:
+        	user_data (dict): dictionary with modal object, confirmation boolean, callback function if confimred and data if confirmed
+        Returns:
+        	None
+        """
+        modal: ConfirmationModal = user_data["modal"]
+        modal.close()
+        if user_data["confirmation"]:
+            if user_data["data"]["currentTable"] == self.__repository[user_data["data"]["id"]].name:
+                self.refreshTableRows(hide=True)
+            user_data["after"](user_data["data"]["id"])
 
     def handleConfirmCreateTable(self, sender, app_data, user_data):
         """Handles click on button in AddTableModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
@@ -166,11 +183,15 @@ class TableViewModel:
         self.__tableView[f"count_{uuid}"] = data
 
     def handleDeleteTable(self, sender, app_data, user_data):
-        id = user_data
-        self.__repository.remove(id)
+        id = user_data["id"]
+        tab = user_data["currentTable"]
+        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirmDeleteTable, self.__repository.remove, {"id": id, "currentTable": tab()})
 
-    def refreshTableRows(self, table=None, data=None):
+    def refreshTableRows(self, table=None, data=None, hide=False):
         logging.debug("refreshTableRows called")
+        if hide:
+            self.__tableView.hideColumns()
+            return
         tab = self.currentTable if table is None else table
         self.__tableView.setColumns(tab, tab.rows if data is None else data,
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
