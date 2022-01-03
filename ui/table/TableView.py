@@ -136,10 +136,8 @@ class TableView:
                 dpg.add_text(str(i))
                 for key, value in row.get().values.items():
                     dpg.add_text(str(value))
-                dpg.add_button(label="Usun", tag=f"deleteRowButton_{i}")
-                self.setRegistry(handlerTag=f"deleteRowButtonHandler_{i}",
-                                 itemTag=f"deleteRowButton_{i}", handler=deleteRowHandler,
-                                 userData={"table": tableName, "row": i})
+                dpg.add_button(label="Usun", tag=f"deleteRowButton_{i}", callback=deleteRowHandler,
+                               user_data={"table": tableName, "row": i})
 
     def __setColumnsInput(self, rowsCount, columns, addRowHandler):
         with dpg.table_row(parent=self.columnsTable, tag=f"input_row"):
@@ -148,7 +146,7 @@ class TableView:
                 dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
             dpg.add_button(label="Dodaj", tag="addRowButton", callback=addRowHandler, user_data=self.readRowInput)
 
-    def setTables(self, data, selectTableHandler):
+    def setTables(self, data, selectTableHandler, deleteTableHandler):
         self.__tablesTable.clear()
         self.__tablesTable = TablesTable()
         for tableId, value in data.items():
@@ -157,6 +155,8 @@ class TableView:
                 self.setRegistry(itemTag=tableId.__str__(), handlerTag=f"table_{value.name}_handler",
                                  handler=selectTableHandler)
                 dpg.add_text(value.rowCount, tag=f"count_{tableId.__str__()}")
+                dpg.add_button(label="Usun", tag=f"deleteTableButton_{tableId.__str__()}", callback=deleteTableHandler,
+                               user_data=tableId.__str__())
 
     def readRowInput(self):
         items = [item for item in dpg.get_aliases() if item.startswith("input_row_col_")]

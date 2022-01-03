@@ -6,8 +6,9 @@ class TablesTable:
         if not dpg.does_item_exist("tablesTableGroup"):
             dpg.add_group(parent="rootGroup", tag="tablesTableGroup", horizontal=False)
         with dpg.table(tag="tablesTable", header_row=True, width=250, parent="tablesTableGroup"):
-            dpg.add_table_column(tag="tablesTableNameColumn", label="Name")
-            dpg.add_table_column(tag="tablesTableRowsColumn", label="Rows")
+            dpg.add_table_column(tag="tablesTableNameColumn", label="Nazwa")
+            dpg.add_table_column(tag="tablesTableRowsColumn", label="Wiersze")
+            dpg.add_table_column(tag="tablesTableActionColumn", label="Akcja")
 
     def clear(self):
         if dpg.does_item_exist("tablesTable"):

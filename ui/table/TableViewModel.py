@@ -165,6 +165,10 @@ class TableViewModel:
     def handleRowsCountChanged(self, data, uuid):
         self.__tableView[f"count_{uuid}"] = data
 
+    def handleDeleteTable(self, sender, app_data, user_data):
+        id = user_data
+        self.__repository.remove(id)
+
     def refreshTableRows(self, table=None, data=None):
         logging.debug("refreshTableRows called")
         tab = self.currentTable if table is None else table
@@ -173,4 +177,4 @@ class TableViewModel:
 
     def refreshTables(self):
         logging.debug("refreshTables called")
-        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)
+        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable, deleteTableHandler=self.handleDeleteTable)
