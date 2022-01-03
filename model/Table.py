@@ -1,14 +1,16 @@
 import json
 from typing import Type, TypeVar, Union, Dict, Any
 
+from lib.BaseObservable import BaseObservable
 from model.Row import Row
 from lib.Observable import Observable
 
 C = TypeVar("C", bound="Column")
 
 
-class Table:
-    def __init__(self, name, tableId, ):
+class Table(BaseObservable):
+    def __init__(self, name, tableId):
+        super().__init__()
         self.__tableId = tableId
         self.__columnDictionary: Dict[str, C] = dict()
         self.__name = Observable(name, tableId)
@@ -47,11 +49,13 @@ class Table:
         self.__verifyRow(row)
         self.__rows.append(Observable(Row(row)))
         self.__rowCount.set(self.rowCount+1)
+        self._doCallbacks()
 
     def remove(self, rowIndex):
         try:
             self.__rows.pop(rowIndex)
             self.__rowCount.set(self.rowCount - 1)
+            self._doCallbacks()
         except Exception:
             raise ValueError("Invalid index")
 
@@ -71,6 +75,7 @@ class Table:
         for row in self.__rows:
             row.get().addValue(column.name, None)
         self.__columnDictionary[column.name] = column
+        self._doCallbacks()
 
     def __str__(self):
         str=""
@@ -85,3 +90,10 @@ class Table:
         for colName, rowValue in row.items():
             if rowValue != None and not isinstance(rowValue, self[colName].type):
                 raise TypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
+
+    def _doCallbacks(self, data=None):
+        for func in self._callbacks:
+            if data is None:
+                func(self)
+            else:
+                func(self, data)

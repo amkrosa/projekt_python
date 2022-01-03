@@ -30,7 +30,9 @@ class TableViewModel:
         self.__tableService = TableService(self.__repository)
 
         if len(self.__repository) != 0:
+            self.__repository.addCallback(self.refreshTables)
             for table in self.__repository.repository.values():
+                table.addCallback(self.refreshTableRows)
                 table.setNameCallback(self.handleTableNameChanged)
                 table.setRowsCountCallback(self.handleRowsCountChanged)
 
@@ -64,21 +66,19 @@ class TableViewModel:
         [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
          data["columns"].items()]
         self.__repository.add(table, id=tableId)
-        self.refreshTables()
         self.__tableView.setRegistry(itemTag=tableId, handlerTag=f"table_{data['name']}_handler",
                                      handler=self.handleSelectTable)
 
     def handleSelectTable(self, sender, app_data):
         tableId = app_data[1]
-        t = self.__repository[tableId]
-        self.refreshTableRows(t)
+        tab = self.__repository[tableId]
+        self.refreshTableRows(tab)
 
     def handleAddColumn(self):
         columnName, columnType = self.__tableView.addColumn()
         col = ColumnService.createColumn(columnName, columnType)
         tab = self.currentTable
         tab.addColumn(col)
-        self.refreshTableRows(tab)
 
     def handleAddRow(self, sender, app_data, user_data):
         """	Handles click on addRow button. Displays popup on error
@@ -99,7 +99,6 @@ class TableViewModel:
                                             text=f"Wartosc {values[col.name]} ma niepoprawny typ")
                 return
         tab.push(row)
-        self.refreshTableRows(tab)
 
     def handleConfirm(self, sender, app_data, user_data):
         """Handles click on button in ConfirmationModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
@@ -113,7 +112,6 @@ class TableViewModel:
         modal.close()
         if user_data["confirmation"]:
             user_data["after"](user_data["data"])
-            self.refreshTableRows(self.currentTable)
 
     def handleConfirmCreateTable(self, sender, app_data, user_data):
         """Handles click on button in AddTableModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
@@ -127,7 +125,6 @@ class TableViewModel:
         modal.close()
         if user_data["confirmation"]:
             user_data["after"](modal.form)
-            self.refreshTables()
 
     def handleDeleteRow(self, sender, app_data, user_data):
         """Handles click on deleteRowButton, which displays ConfirmationModal.
@@ -168,8 +165,10 @@ class TableViewModel:
         self.__tableView[f"count_{uuid}"] = data
 
     def refreshTableRows(self, tab: Table, data=None):
+        logging.debug("refreshTableRows called")
         self.__tableView.setColumns(tab, tab.rows if data is None else data,
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
 
     def refreshTables(self):
+        logging.debug("refreshTables called")
         self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable)

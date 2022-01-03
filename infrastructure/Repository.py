@@ -3,6 +3,7 @@ import uuid
 from json import JSONEncoder
 from typing import Dict, Any, TypeVar, Union
 
+from lib.BaseObservable import BaseObservable
 from model.Table import Table
 from model.column.Column import Column
 from lib.SingletonMeta import SingletonMeta
@@ -10,7 +11,14 @@ from lib.SingletonMeta import SingletonMeta
 T = TypeVar("T", bound=Union[Table, Column])
 
 
-class Repository(metaclass=SingletonMeta):
+class Repository(BaseObservable, metaclass=SingletonMeta):
+    def __init__(self, data=None):
+        super().__init__()
+        if data is not None:
+            self.__repository = data
+        else:
+            self.__repository = {}
+
     @property
     def repository(self):
         return self.__repository
@@ -27,9 +35,11 @@ class Repository(metaclass=SingletonMeta):
 
     def add(self, arg, id=uuid.uuid4().__str__()):
         self.repository[id] = arg
+        self._doCallbacks()
 
     def remove(self, arg: uuid):
         self.repository.pop(arg)
+        self._doCallbacks()
 
     def findByName(self, name):
         for value in self.repository.values():

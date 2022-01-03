@@ -11,12 +11,8 @@ class RootViewModel:
     def __init__(self):
         if exists("db.json"):
             with open("db.json", "r") as file:
-                repo = Repository()
-                loaded = json.load(file, cls=Decoder)
-                repo.repository = loaded
-        else:
-            repo = Repository()
-            repo.repository = {}
+                Repository(json.load(file, cls=Decoder))
+
         self._rootView = RootView(onCloseHandler=self.onCloseSaveHandler)
         self._tableViewModel = TableViewModel(self._rootView)
 
