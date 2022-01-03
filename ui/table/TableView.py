@@ -14,7 +14,7 @@ from ui.widgets.TablesTable import TablesTable
 
 
 class TableView:
-    def __init__(self, root: RootView, addTableCallback, addColumnCallback):
+    def __init__(self, root: RootView, addTableCallback, addColumnCallback, querySearchCallback):
         self.__root = root
         self.__addTableButton = "addTableButton"
         self.__tablesTable = "tablesTable"
@@ -23,10 +23,10 @@ class TableView:
         self.__tablesTableRowCount = 0
         self.__columnTypes = ["str", "int", "float"]
         self.__tablesTable = TablesTable()
-        self.__createAddTableButton()
+        self.__createAddTableButton(addTableCallback)
         self.__createColumnsTable()
         self.__createAddColumn(addColumnCallback)
-        self.__createQuerySearch()
+        self.__createQuerySearch(querySearchCallback)
 
     @property
     def addTableButton(self):
@@ -64,28 +64,30 @@ class TableView:
 
     def confirmationModal(self, text, callback, afterCallback, afterData):
         ConfirmationModal(text=text, afterData=afterData, callback=callback, afterCallback=afterCallback,
-                      width=250, height=90, center=self.__root.centerRelative(250, 150))
+                          width=250, height=90, center=self.__root.centerRelative(250, 150))
 
     def __createAddTableInput(self, addTableCallback):
         dpg.add_input_text(tag="addTableInput", before=self.tablesTable.tag, label="Nazwa", parent="tablesTableGroup",
                            width=100, callback=addTableCallback, on_enter=True)
 
-    def __createAddTableButton(self):
-        dpg.add_button(tag="addTableButton", before=self.tablesTable.tag, label="Dodaj tabele", parent="tablesTableGroup")
+    def __createAddTableButton(self, handler):
+        dpg.add_button(tag="addTableButton", before=self.tablesTable.tag, label="Dodaj tabele",
+                       parent="tablesTableGroup", callback=handler)
 
-    def __createAddColumn(self, addColumnCallback):
+    def __createAddColumn(self, handler):
         dpg.add_input_text(tag="addColumnInput", before=self.columnsTable, label="Nazwa", parent="columnsTableGroup",
-                           width=100, callback=addColumnCallback, on_enter=True)
+                           width=100, callback=handler, on_enter=True)
         dpg.add_radio_button(tag="addColumnRadio", default_value="str", items=self.__columnTypes,
                              before=self.columnsTable,
                              horizontal=True)
         dpg.add_button(tag="addColumnButton", before=self.columnsTable, label="Dodaj kolumne",
-                       parent="columnsTableGroup")
+                       parent="columnsTableGroup", callback=handler)
 
-    def __createQuerySearch(self):
+    def __createQuerySearch(self, handler):
         with dpg.group(parent="columnsTableGroup", tag="querySearchGroup", horizontal=True, width=150):
             dpg.add_input_text(tag="querySearchInput", hint="lambda row: row[\"id\"]>3")
-            dpg.add_button(tag="querySearchButton", label="Szukaj")
+            dpg.add_button(tag="querySearchButton", label="Szukaj", callback=handler,
+                           user_data={"dataCallback": lambda tag: dpg.get_value(tag), "data": "querySearchInput"})
 
     def __createColumnsTable(self):
         with dpg.group(parent="rootGroup", tag="columnsTableGroup", show=False):
@@ -144,7 +146,6 @@ class TableView:
             for col in columns.values():
                 dpg.add_input_text(hint=f"{self.__getTypeText(col.type)}", tag=f"input_row_col_{col.name}")
             dpg.add_button(label="Dodaj", tag="addRowButton", callback=addRowHandler, user_data=self.readRowInput)
-
 
     def setTables(self, data, selectTableHandler):
         self.__tablesTable.clear()

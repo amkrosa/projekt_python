@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class TableViewModel:
     def __init__(self, root: RootView):
         self.__repository = Repository()
-        self.__tableService = TableService(self.__repository.repository)
+        self.__tableService = TableService(self.__repository)
 
         if len(self.__repository) != 0:
             for table in self.__repository.repository.values():
@@ -35,13 +35,13 @@ class TableViewModel:
                 table.setRowsCountCallback(self.handleRowsCountChanged)
 
         self.__tableView = TableView(root, addTableCallback=self.handleOpenAddTable,
-                                     addColumnCallback=self.handleAddColumn)
+                                     addColumnCallback=self.handleAddColumn, querySearchCallback=self.handleQuerySearch)
+
         self.__tableView.setRegistry(itemTag=self.__tableView.addTableButton, handlerTag="addButtonHandler",
                                      handler=self.handleOpenAddTable)
         self.__tableView.setRegistry(itemTag="addColumnButton", handlerTag="addColumnHandler",
                                      handler=self.handleAddColumn)
-        self.__tableView.setRegistry(itemTag="querySearchButton", handlerTag="querySearchHandler",
-                                     handler=self.handleQuerySearch)
+
         self.refreshTables()
 
     @property
@@ -141,22 +141,23 @@ class TableViewModel:
         tab = self.currentTable
         self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
 
-    def handleQuerySearch(self):
+    def handleQuerySearch(self, sender, app_data, user_data):
         """Handles click on querySearchButton, which filters data via TableService.query.
 
         Args:
-        	user_data (str): current query search
+        	user_data (dict): dictionary with keys dataCallback (function to get data with) and data (tag of element)
         Returns:
         	None
         """
-        query = self.__tableView.currentQuerySearch
+        query = user_data["dataCallback"](user_data["data"])
+        logger.debug(f"Executing: {query}...")
         tab = self.currentTable
         try:
             data = self.__tableService.query(tab.name, eval(query))
         except Exception as e:
-            self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
-            logger.debug(f"{e.__str__()}")
-            return
+             self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
+             logger.debug(f"{e.__str__()}")
+             return
 
         self.refreshTableRows(tab, data)
 
