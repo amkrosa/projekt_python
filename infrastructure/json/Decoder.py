@@ -22,11 +22,9 @@ class Decoder(JSONDecoder):
         if type == 'Table':
             logging.debug(obj["rows"])
             tab = Table(name=obj["name"], tableId=obj["_id"])
-            print(obj["rows"])
             [tab.addColumn(column) for column in obj["columns"].values()]
             for row in obj["rows"].values():
                 tab.push(row.values)
-            #[tab.push(row.values) for index, row in obj["rows"].items()]
             return tab
 
         if type == 'Column':
