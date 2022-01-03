@@ -28,7 +28,6 @@ class AddTableModal:
     def form(self):
         names = {int(item.split("_")[2]): item for item in dpg.get_aliases() if item.startswith("addColumn_name_")}
         types = {int(item.split("_")[2]): item for item in dpg.get_aliases() if item.startswith("addColumn_type_")}
-        print({dpg.get_value(names[index]): dpg.get_value(types[index]) for index in range(1, len(names)+1)})
         return {
             "name": dpg.get_value("addTableInput_modal"),
             "columns": {dpg.get_value(names[index]): dpg.get_value(types[index]) for index in range(1, len(names)+1)}
@@ -37,7 +36,6 @@ class AddTableModal:
     def __addColumn(self):
         with dpg.table_row(parent="addColumnTable"):
             count = len(dpg.get_item_children("addColumnTable", 1)) #get rows of element addColumnTable
-            print(count)
             dpg.add_text(dpg.get_value("addColumnInput_modal"), tag=f"addColumn_name_{count}")
             dpg.add_text(dpg.get_value("addColumnRadio_modal"), tag=f"addColumn_type_{count}")
 

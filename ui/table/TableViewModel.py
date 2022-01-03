@@ -64,14 +64,12 @@ class TableViewModel:
         table = Table(name, tableId)
         table.setNameCallback(self.handleTableNameChanged)
         table.setRowsCountCallback(self.handleRowsCountChanged)
-        print(data["columns"])
         [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
          data["columns"].items()]
         table.addCallback(self.refreshTableRows)
         self.__repository.add(table, id=tableId)
 
     def handleSelectTable(self, sender, app_data, user_data):
-        print(sender, app_data, user_data)
         tableId = sender.split("_")[1]
         tab = self.__repository[tableId]
         user_data(tableId)
