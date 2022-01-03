@@ -24,6 +24,7 @@ class TableView:
         self.__columnTypes = ["str", "int", "float"]
         self.__tablesTable = TablesTable()
         self.__createAddTableButton(addTableCallback)
+        dpg.add_spacer(width=50, parent="rootGroup")
         self.__createColumnsTable()
         self.__createAddColumn(addColumnCallback)
         self.__createQuerySearch(querySearchCallback, refreshCallback)
@@ -55,12 +56,12 @@ class TableView:
     def currentQuerySearch(self):
         return dpg.get_value("querySearchInput")
 
-    def errorPopup(self, itemTag, text):
-        return ErrorPopup(itemTag, text)
+    def errorPopup(self, itemTag, text, modal=None):
+        return ErrorPopup(itemTag, text, modal)
 
     def addTableModal(self, callback, afterCallback):
         AddTableModal(callback=callback, afterCallback=afterCallback,
-                      width=250, height=270, center=self.__root.centerRelative(250, 150))
+                      width=250, height=270, center=self.__root.centerRelative(250, 270))
 
     def confirmationModal(self, text, callback, afterCallback, afterData):
         ConfirmationModal(text=text, afterData=afterData, callback=callback, afterCallback=afterCallback,
@@ -123,7 +124,7 @@ class TableView:
 
         for name in tab.columns.keys():
             dpg.add_table_column(parent=self.columnsTable, label=name, tag=f"column_{name}")
-        dpg.add_table_column(parent=self.columnsTable, tag=f"inputColumn")
+        dpg.add_table_column(parent=self.columnsTable, label="Akcje", tag=f"inputColumn")
 
         self.__setColumnsData(tab.name, data, deleteRowHandler)
         self.__setColumnsInput(str(len(tab.rows) + 1), tab.columns, addRowHandler)

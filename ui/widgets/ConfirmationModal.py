@@ -13,7 +13,7 @@ class ConfirmationModal:
             with dpg.group(horizontal=True):
                 dpg.add_button(label="OK", callback=callback, user_data={"confirmation": True, "after": afterCallback,
                                                                          "data": afterData, "modal": self})
-                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
+                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False, "modal": self})
 
     def close(self):
         dpg.configure_item("confirmation_modal", show=False)

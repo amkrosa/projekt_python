@@ -138,9 +138,16 @@ class TableViewModel:
         	None
         """
         modal: AddTableModal = user_data["modal"]
-        modal.close()
+
         if user_data["confirmation"]:
+            try:
+                Table(modal.form["name"], None)
+            except ValueError:
+                self.__tableView.errorPopup(itemTag="createTableButton_modal",
+                                            text=f"Nazwa tabeli jest niepoprawna", modal="createTable_modal")
+                return
             user_data["after"](modal.form)
+        modal.close()
 
     def handleDeleteRow(self, sender, app_data, user_data):
         """Handles click on deleteRowButton, which displays ConfirmationModal.
@@ -168,9 +175,9 @@ class TableViewModel:
         try:
             data = self.__tableService.query(tab.name, eval(query))
         except Exception as e:
-             self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
-             logger.debug(f"{e.__str__()}")
-             return
+            self.__tableView.errorPopup(itemTag="querySearchButton", text="Niepoprawne wyrazenie")
+            logger.debug(f"{e.__str__()}")
+            return
 
         self.refreshTableRows(data=data)
 
@@ -183,7 +190,8 @@ class TableViewModel:
     def handleDeleteTable(self, sender, app_data, user_data):
         id = user_data["id"]
         tab = user_data["currentTable"]
-        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirmDeleteTable, self.__repository.remove, {"id": id, "currentTable": tab()})
+        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirmDeleteTable, self.__repository.remove,
+                                           {"id": id, "currentTable": tab()})
 
     def refreshTableRows(self, table=None, data=None, hide=False):
         logging.debug("refreshTableRows called")
@@ -196,4 +204,5 @@ class TableViewModel:
 
     def refreshTables(self):
         logging.debug("refreshTables called")
-        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable, deleteTableHandler=self.handleDeleteTable)
+        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable,
+                                   deleteTableHandler=self.handleDeleteTable)

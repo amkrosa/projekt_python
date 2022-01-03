@@ -11,9 +11,11 @@ C = TypeVar("C", bound="Column")
 class Table(BaseObservable):
     def __init__(self, name, tableId):
         super().__init__()
+        if self.__validateName(name):
+            self.__name = name.strip()
         self.__tableId = tableId
         self.__columnDictionary: Dict[str, C] = dict()
-        self.__name = Observable(name, tableId)
+        self.__name = Observable(self.__name, tableId)
         self.__rows = []
         self.__rowCount = Observable(len(self.__rows), tableId)
 
@@ -90,6 +92,13 @@ class Table(BaseObservable):
         for colName, rowValue in row.items():
             if rowValue != None and not isinstance(rowValue, self[colName].type):
                 raise TypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
+
+    def __validateName(self, name):
+        if not isinstance(name, str):
+            raise ValueError("Name must be a string")
+        if len(name.strip()) == 0:
+            raise ValueError("Name cannot consist only of whitespaces")
+        return True
 
     def _doCallbacks(self, data=None):
         for func in self._callbacks:

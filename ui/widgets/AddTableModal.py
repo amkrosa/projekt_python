@@ -1,12 +1,14 @@
 import dearpygui.dearpygui as dpg
 
+from ui.widgets.ErrorPopup import ErrorPopup
+
 
 class AddTableModal:
 
     def __init__(self, center, width, height, callback, afterCallback):
         if dpg.does_item_exist("createTable_modal"):
             dpg.delete_item("createTable_modal")
-        with dpg.window(tag="createTable_modal", label="Dodaj tabele", modal=True,
+        with dpg.window(tag="createTable_modal", label="Dodaj tabele",
                         pos=center,
                         width=width, height=height):
             dpg.add_input_text(tag="addTableInput_modal", hint="nazwa", label="Tabela", width=100)
@@ -20,9 +22,9 @@ class AddTableModal:
                 dpg.add_table_column(label="Typ")
 
             with dpg.group(horizontal=True):
-                dpg.add_button(label="Stworz", callback=callback,
+                dpg.add_button(label="Stworz", tag="createTableButton_modal", callback=callback,
                                user_data={"confirmation": True, "after": afterCallback, "modal": self})
-                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False})
+                dpg.add_button(label="Wroc", callback=callback, user_data={"confirmation": False, "modal": self})
 
     @property
     def form(self):
@@ -34,8 +36,20 @@ class AddTableModal:
         }
 
     def __addColumn(self):
+        name = dpg.get_value("addColumnInput_modal")
+
+        print(f"whitespaces: {len(name.strip()) == 0}")
+
+        if not isinstance(name, str):
+            ErrorPopup(itemTag="addColumnButton_modal", text="Nazwa kolumny musi byc tekstem", modal="createTable_modal")
+            return
+
+        if len(name.strip()) == 0:
+            ErrorPopup(itemTag="createTable_modal", text="Nazwa musi kolumny zawierac znaki drukowalne", modal="createTable_modal")
+            return
+
         with dpg.table_row(parent="addColumnTable"):
-            count = len(dpg.get_item_children("addColumnTable", 1)) #get rows of element addColumnTable
+            count = len(dpg.get_item_children("addColumnTable", 1))  # get rows of element addColumnTable
             dpg.add_text(dpg.get_value("addColumnInput_modal"), tag=f"addColumn_name_{count}")
             dpg.add_text(dpg.get_value("addColumnRadio_modal"), tag=f"addColumn_type_{count}")
 
