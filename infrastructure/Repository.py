@@ -37,8 +37,8 @@ class Repository(BaseObservable, metaclass=SingletonMeta):
         self.repository[id] = arg
         self._doCallbacks()
 
-    def remove(self, arg: uuid):
-        self.repository.pop(arg)
+    def remove(self, tableId: uuid):
+        self.repository.pop(tableId)
         self._doCallbacks()
 
     def findByName(self, name):

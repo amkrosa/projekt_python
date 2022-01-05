@@ -13,14 +13,17 @@ class TableService:
     def __init__(self, repository: Repository):
         self.__repository: Repository = repository
 
-    def addTable(self, tableId, name, nameCallback, rowsCallback, refreshCallback, columns=None):
+    def addTable(self, tableId, name, nameCallback=None, rowsCallback=None, refreshCallback=None, columns=None):
         table = Table(name, tableId)
-        table.setNameCallback(nameCallback)
-        table.setRowsCountCallback(rowsCallback)
+        if nameCallback:
+            table.setNameCallback(nameCallback)
+        if rowsCallback is not None:
+            table.setRowsCountCallback(rowsCallback)
         if columns is not None:
             [table.addColumn(TableService.createColumn(columnName, columnType)) for columnName, columnType in
              columns.items()]
-        table.addCallback(refreshCallback)
+        if refreshCallback is not None:
+            table.addCallback(refreshCallback)
         self.__repository.add(table, tableId)
 
     def push(self, tableName, row):
@@ -29,8 +32,8 @@ class TableService:
     def pop(self, tableName, rowIndex):
         self.getTable(tableName).remove(rowIndex)
 
-    def removeTable(self, name):
-        self.__repository.remove(name)
+    def removeTable(self, tableId):
+        self.__repository.remove(tableId)
 
     def getTables(self) -> Dict[Any, Table]:
         return self.__repository.repository
