@@ -4,7 +4,6 @@ import uuid
 from json import JSONEncoder
 from uuid import uuid4
 
-from application.ColumnService import ColumnService
 from application.TableService import TableService
 from model.Table import Table
 from model.column.Column import Column
@@ -44,7 +43,6 @@ class TableViewModel:
                                      handler=self.handleOpenAddTable)
         self.__tableView.setRegistry(itemTag="addColumnButton", handlerTag="addColumnHandler",
                                      handler=self.handleAddColumn)
-
         self.refreshTables()
 
     @property
@@ -61,25 +59,21 @@ class TableViewModel:
     def handleAddTable(self, data):
         tableId = uuid4().__str__()
         name = data["name"]
-        table = Table(name, tableId)
-        table.setNameCallback(self.handleTableNameChanged)
-        table.setRowsCountCallback(self.handleRowsCountChanged)
-        [table.addColumn(ColumnService.createColumn(columnName, columnType)) for columnName, columnType in
-         data["columns"].items()]
-        table.addCallback(self.refreshTableRows)
-        self.__repository.add(table, id=tableId)
+        self.__tableService.addTable(tableId=tableId, name=name, nameCallback=self.handleTableNameChanged,
+                                     rowsCallback=self.handleRowsCountChanged,
+                                     refreshCallback=self.refreshTableRows, columns=data["columns"])
 
     def handleSelectTable(self, sender, app_data, user_data):
         tableId = sender.split("_")[1]
-        tab = self.__repository[tableId]
+        tab = self.__tableService.getTableById(tableId=tableId)
         user_data(tableId)
         self.refreshTableRows(tab)
 
     def handleAddColumn(self):
         columnName, columnType = self.__tableView.addColumn()
-        col = ColumnService.createColumn(columnName, columnType)
-        tab = self.currentTable
-        tab.addColumn(col)
+        col = TableService.createColumn(columnName, columnType)
+        tableName = self.currentTable.name
+        self.__tableService.addColumn(tableName=tableName, column=col)
 
     def handleAddRow(self, sender, app_data, user_data):
         """	Handles click on addRow button. Displays popup on error
@@ -92,14 +86,14 @@ class TableViewModel:
         values = user_data()
         tab: Table = self.currentTable
         row = {}
-        for index, col in enumerate(tab.columns.values()):
+        for col in self.__tableService.getColumns(tab.name).values():
             try:
                 row[col.name] = col.cast(values[col.name])
             except TypeError:
                 self.__tableView.errorPopup(itemTag="addRowButton",
                                             text=f"Wartosc {values[col.name]} ma niepoprawny typ")
                 return
-        tab.push(row)
+        self.__tableService.push(tab.name, row)
 
     def handleConfirm(self, sender, app_data, user_data):
         """Handles click on button in ConfirmationModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
@@ -112,7 +106,7 @@ class TableViewModel:
         modal: ConfirmationModal = user_data["modal"]
         modal.close()
         if user_data["confirmation"]:
-            user_data["after"](user_data["data"])
+            user_data["after"](user_data["data"]["tableName"], user_data["data"]["row"])
 
     def handleConfirmDeleteTable(self, sender, app_data, user_data):
         """Handles click on button in ConfirmationModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
@@ -159,7 +153,8 @@ class TableViewModel:
         """
         row = user_data["row"] - 1
         tab = self.currentTable
-        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, tab.remove, row)
+        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirm, self.__tableService.pop,
+                                           {"row": row, "tableName": tab.name})
 
     def handleQuerySearch(self, sender, app_data, user_data):
         """Handles click on querySearchButton, which filters data via TableService.query.
@@ -190,7 +185,8 @@ class TableViewModel:
     def handleDeleteTable(self, sender, app_data, user_data):
         id = user_data["id"]
         tab = user_data["currentTable"]
-        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirmDeleteTable, self.__repository.remove,
+        self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirmDeleteTable,
+                                           self.__tableService.removeTable,
                                            {"id": id, "currentTable": tab()})
 
     def refreshTableRows(self, table=None, data=None, hide=False):
@@ -204,5 +200,5 @@ class TableViewModel:
 
     def refreshTables(self):
         logging.debug("refreshTables called")
-        self.__tableView.setTables(self.__repository.repository, selectTableHandler=self.handleSelectTable,
+        self.__tableView.setTables(self.__tableService.getTables(), selectTableHandler=self.handleSelectTable,
                                    deleteTableHandler=self.handleDeleteTable)
