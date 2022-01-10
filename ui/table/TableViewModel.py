@@ -218,8 +218,8 @@ class TableViewModel:
             self.__tableView.hideColumns()
             return
         tab = self.currentTable if table is None else table
-        self.__tableView.setColumns(tab, tab.rows if data is None else data,
-                                    addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
+        self.__tableView.setRows(tab, tab.rows if data is None else data,
+                                 addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
 
     def refreshTables(self):
         """
