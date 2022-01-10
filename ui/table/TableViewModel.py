@@ -1,19 +1,9 @@
-import json
 import logging
-import uuid
-from json import JSONEncoder
 from uuid import uuid4
 
 from application.TableService import TableService
 from model.Table import Table
-from model.column.Column import Column
-from model.column.FloatColumn import FloatColumn
-from model.column.IntegerColumn import IntegerColumn
-from model.column.TextColumn import TextColumn
-from infrastructure.Repository import Repository
-from infrastructure.json.Encoder import Encoder
-from lib.Observable import Observable
-import dearpygui.dearpygui as dpg
+from model.Repository import Repository
 
 from ui.root.RootView import RootView
 from ui.table.TableView import TableView
@@ -28,6 +18,8 @@ class TableViewModel:
         self.__repository = Repository()
         self.__tableService = TableService(self.__repository)
 
+        #if repository is loaded from a file (so it's length is not 0) then add callbacks for Repository object
+        #and Table objects
         if len(self.__repository) != 0:
             self.__repository.addCallback(self.refreshTables)
             for table in self.__repository.repository.values():
@@ -54,9 +46,15 @@ class TableViewModel:
         return self.__repository.findByName(self.__tableView.currentTableSelection)
 
     def handleOpenAddTable(self):
+        """
+        Opens add table modal
+        """
         self.__tableView.addTableModal(callback=self.handleConfirmCreateTable, afterCallback=self.handleAddTable)
 
     def handleAddTable(self, data):
+        """
+        Handles click on addTableButton. Called from confirmation modal after clicking OK.
+        """
         tableId = uuid4().__str__()
         name = data["name"]
         self.__tableService.addTable(tableId=tableId, name=name, nameCallback=self.handleTableNameChanged,
@@ -64,12 +62,22 @@ class TableViewModel:
                                      refreshCallback=self.refreshTableRows, columns=data["columns"])
 
     def handleSelectTable(self, sender, app_data, user_data):
+        """
+        Selects clicked table.
+
+        Args:
+            sender (str): tag of the item that had callback
+            user_data (Callable): TableView.__clearTableSelection, which clears table selection regarding Selectable element
+        """
         tableId = sender.split("_")[1]
         tab = self.__tableService.getTableById(tableId=tableId)
         user_data(tableId)
         self.refreshTableRows(tab)
 
     def handleAddColumn(self):
+        """
+        Adds column after table creation
+        """
         columnName, columnType = self.__tableView.addColumn()
         col = TableService.createColumn(columnName, columnType)
         tableName = self.currentTable.name
@@ -183,6 +191,13 @@ class TableViewModel:
         self.__tableView[f"count_{uuid}"] = data
 
     def handleDeleteTable(self, sender, app_data, user_data):
+        """Handles click on deleteTableButton, which displays ConfirmationModal.
+
+        Args:
+        	user_data (dict): dictionary with table id and currently selected table
+        Returns:
+        	None
+        """
         id = user_data["id"]
         tab = user_data["currentTable"]
         self.__tableView.confirmationModal("Czy aby napewno?", self.handleConfirmDeleteTable,
@@ -190,6 +205,14 @@ class TableViewModel:
                                            {"id": id, "currentTable": tab()})
 
     def refreshTableRows(self, table=None, data=None, hide=False):
+        """
+        Calls setColumns method from view with current or specified rows data
+
+        Args:
+        	table (Table): table object, defaults to current table
+        	data (dict): dictionary containing row data
+        	hide (bool): specifies if method should hide row section of application
+        """
         logging.debug("refreshTableRows called")
         if hide:
             self.__tableView.hideColumns()
@@ -199,6 +222,9 @@ class TableViewModel:
                                     addRowHandler=self.handleAddRow, deleteRowHandler=self.handleDeleteRow)
 
     def refreshTables(self):
+        """
+        Calls setTables method from view with current Table data
+        """
         logging.debug("refreshTables called")
         self.__tableView.setTables(self.__tableService.getTables(), selectTableHandler=self.handleSelectTable,
                                    deleteTableHandler=self.handleDeleteTable)

@@ -2,7 +2,7 @@ import unittest
 from uuid import uuid4
 
 from application.TableService import TableService
-from infrastructure.Repository import Repository
+from model.Repository import Repository
 
 
 class MyTestCase(unittest.TestCase):

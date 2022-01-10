@@ -11,10 +11,16 @@ from model.column.TextColumn import TextColumn
 logger = logging.getLogger(__name__)
 
 class Decoder(JSONDecoder):
+    """
+    Used for decoding JSON
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(object_hook=self.object_hook, *args, **kwargs)
 
     def object_hook(self, obj: dict):
+        """
+        Recursively converts JSON object to python objects.
+        """
         if '_type' not in obj:
             return obj
         type = obj['_type']

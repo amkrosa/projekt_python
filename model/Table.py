@@ -9,6 +9,9 @@ C = TypeVar("C", bound="Column")
 
 
 class Table(BaseObservable):
+    """
+    Class encompassing Table in application. Inherits BaseObservable to more easily bind it to UI.
+    """
     def __init__(self, name, tableId):
         super().__init__()
         if self.__validateName(name):
@@ -87,6 +90,10 @@ class Table(BaseObservable):
         return str
 
     def __verifyRow(self, row: Dict[str, Any]):
+        """
+        Validates row by checking if argument has keys that matches table columns and by checking row types in each
+        column.
+        """
         for col in self.columns.keys():
             if col not in row.keys():
                 raise ValueError(f"Row should contain all table columns, does not have {col}")
@@ -96,6 +103,9 @@ class Table(BaseObservable):
                 raise TypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
 
     def __validateName(self, name):
+        """
+        Validates if name is a string and does not consists only of whitespaces
+        """
         if not isinstance(name, str):
             raise ValueError("Name must be a string")
         if len(name.strip()) == 0:
@@ -103,6 +113,9 @@ class Table(BaseObservable):
         return True
 
     def _doCallbacks(self, data=None):
+        """
+        Overrides BaseObservable method to allow for more elastic callback use
+        """
         for func in self._callbacks:
             if data is None:
                 func(self)

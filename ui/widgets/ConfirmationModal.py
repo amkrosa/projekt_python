@@ -5,6 +5,10 @@ import dearpygui.dearpygui as dpg
 
 class ConfirmationModal:
     def __init__(self, text, callback, afterCallback, afterData, width, height, center: Tuple):
+        """
+        Creates confirmation modal with positive and negative options. Callbacks are handling what happens after pressing
+        each button
+        """
         if dpg.does_item_exist("confirmation_modal"):
             dpg.delete_item("confirmation_modal")
 

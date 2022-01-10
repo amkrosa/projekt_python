@@ -2,6 +2,10 @@ import abc
 
 
 class BaseObservable:
+    """
+    Base class for implementing easier binding between models and UI. Stores dictionary with functions as keys, which are
+    then executed after specified actions (for example editing a dictionary).
+    """
     def __init__(self):
         self._callbacks = {}
 

@@ -1,4 +1,8 @@
 class Observable:
+    """
+    Wrapper object for easier binding between models and UI. Each set(self, data) call executes callbacks stored in
+    dictionary.
+    """
     def __init__(self, initialValue=None, uuid=None):
         self.uuid = uuid
         self.data = initialValue

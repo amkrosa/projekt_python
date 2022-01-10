@@ -12,6 +12,11 @@ T = TypeVar("T", bound=Union[Table, Column])
 
 
 class Repository(BaseObservable, metaclass=SingletonMeta):
+    """
+    Singleton class for storing tables. Each table is assigned an UUID. Inherits from BaseObservable to implement basic
+    callback functionality, making it easier to bind it with UI.
+    """
+
     def __init__(self, data=None):
         super().__init__()
         if data is not None:

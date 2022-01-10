@@ -1,8 +1,7 @@
-import uuid
 from typing import Callable, Any, Dict
 
 from model.Table import Table
-from infrastructure.Repository import Repository
+from model.Repository import Repository
 from model.column.Column import Column
 from model.column.FloatColumn import FloatColumn
 from model.column.IntegerColumn import IntegerColumn
@@ -10,6 +9,10 @@ from model.column.TextColumn import TextColumn
 
 
 class TableService:
+    """
+    Used as an interface to operate on models.
+    """
+
     def __init__(self, repository: Repository):
         self.__repository: Repository = repository
 

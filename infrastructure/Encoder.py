@@ -4,12 +4,18 @@ from typing import Any
 from model.Row import Row
 from model.Table import Table
 from model.column.Column import Column
-from infrastructure.Repository import Repository
+from model.Repository import Repository
 from lib.Observable import Observable
 
 
 class Encoder(JSONEncoder):
+    """
+    Used for encoding python objects
+    """
     def default(self, o: Any) -> Any:
+        """
+        Returns dictionary with simple data acceptable by JSON based on type. Also adds helper fields for decoding.
+        """
         if isinstance(o, Table):
             return {
                 "_type": "Table",

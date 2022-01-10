@@ -4,8 +4,10 @@ from ui.widgets.ErrorPopup import ErrorPopup
 
 
 class AddTableModal:
-
     def __init__(self, center, width, height, callback, afterCallback):
+        """
+        Creates add table modal and displays it
+        """
         if dpg.does_item_exist("createTable_modal"):
             dpg.delete_item("createTable_modal")
         with dpg.window(tag="createTable_modal", label="Dodaj tabele",
@@ -28,6 +30,9 @@ class AddTableModal:
 
     @property
     def form(self):
+        """
+        Used to read values from add table modal, which are: table name and columns dictionary with names and types
+        """
         names = {int(item.split("_")[2]): item for item in dpg.get_aliases() if item.startswith("addColumn_name_")}
         types = {int(item.split("_")[2]): item for item in dpg.get_aliases() if item.startswith("addColumn_type_")}
         return {
@@ -36,9 +41,10 @@ class AddTableModal:
         }
 
     def __addColumn(self):
+        """
+        Adds column to add table modal and unfortunately validates, displaying ErrorPopup on error.
+        """
         name = dpg.get_value("addColumnInput_modal")
-
-        print(f"whitespaces: {len(name.strip()) == 0}")
 
         if not isinstance(name, str):
             ErrorPopup(itemTag="addColumnButton_modal", text="Nazwa kolumny musi byc tekstem", modal="createTable_modal")
