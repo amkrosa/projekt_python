@@ -1,6 +1,6 @@
 # Klient bazy danych
-##Projekt z Języków symbolicznych
-###Anna Krasowska GL 31
+## Projekt z Języków symbolicznych
+### Anna Krasowska GL 31
 
 ---
 
@@ -18,28 +18,28 @@ Można również wykonywać operacje na powyższych obiektach, czyli:
 Stan bazy jest odczytywany z pliku oraz przy wyjściu zapisywany do pliku JSON.
 
 # Funkcjonalność
-####Sekcja tabel:
+#### Sekcja tabel:
 * Przycisk Dodaj tabele, który wyświetla okienko pozwalające na dodanie tabeli wraz z kolumnami (lub bez)
 * Tabela tabel z kolumnami Nazwa, Wiersze (ilość wierszy w tabeli) i Akcja (możliwa akcja, czyli Usuń)
 * Naciśnięcie na nazwę powoduje podświetlenie pola i wybranie tabeli
 
-####Okienko dodania nowej tabeli
+#### Okienko dodania nowej tabeli
 * Pola tekstowe z nazwą tabeli i kolumny do dodania
 * Przycisk typu radio z typem dodawanej kolumny
 * Tabela z aktualnie dodanymi kolumnami
 * Możliwość powrotu przyciskiem Wróć, co nie powoduje żadnych zmian
 
-####Sekcja dodania kolumny:
+#### Sekcja dodania kolumny:
 Po wybraniu tabeli jest możliwość dodania kolejnej kolumny, wprowadzając nazwę i wybierając typ elementu typu radio
 
-####Sekcja wierszy:
+#### Sekcja wierszy:
 * Nazwa tabeli
 * Tabela z wierszami wybranej tabeli z kolumnami Wiersz (numer wiersza), [kolumny tabeli], Akcje (Usuń przy istniejących, dodaj przy wierszu wprowadzania nowego wiersza)
 * Wiersz dodania nowego wiersza - jako placeholder/hint jest wyświetlany typ danej kolumny z możliwością szybkiego dodania nowego wiersza przyciskiem Dodaj
 * Pole tekstowe do filtrowania wierszy, razem z przyciskiem Szukaj (inicjuje akcję filtrowania) i Reset (wraca do oryginalnego stanu). W polu tekstowym
 jest możliwość wpisania poprawnego wyrażenia lambda, które zostanie wykonane na wierszach i wynik zostanie wyświetlony zamiast aktualnych danych
   
-####Odczyt i zapis do pliku .json
+#### Odczyt i zapis do pliku .json
 Na start programu jest wyszukiwany plik `db.json`, jeżeli jest znaleziony to dane z niego są wczytywane przez aplikację.
 Po zakończeniu działania programu (zamknięcie okna) jest wykonywany zapis do pliku `db.json`.
   
