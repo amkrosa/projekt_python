@@ -100,7 +100,7 @@ class Table(BaseObservable):
                 raise ValueError(f"Row should contain all table columns, does not have {col}")
         for colName, rowValue in row.items():
             val = self.columns[colName].cast(rowValue)
-            if not isinstance(val, self[colName].type):
+            if val != None and not isinstance(val, self[colName].type):
                 raise ColumnTypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
 
     def __validateName(self, name):
