@@ -40,13 +40,3 @@ class Column(metaclass=abc.ABCMeta):
         while True:
             self._row += 1
             yield self._row
-
-    def __getitem__(self, item):
-        return self.data[item].get()
-    #
-    # def __str__(self):
-    #     str = ""
-    #     str += f"name: {self.name}\n"
-    #     for row, val in self.data.items():
-    #         str += f"{row}: {val.get()}, "
-    #     return str

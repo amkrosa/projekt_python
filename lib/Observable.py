@@ -33,3 +33,6 @@ class Observable:
     def __set__(self, instance, value):
         self.data = value
         self._docallbacks()
+
+    def __repr__(self):
+        return str(self.data)

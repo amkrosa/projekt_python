@@ -49,7 +49,8 @@ class Table(BaseObservable):
 
     def push(self, row: dict):
         self.__verifyRow(row)
-        self.__rows.append(Observable(Row(row)))
+        castedRow = { key: self.columns[key].cast(value) for key, value in row.items() }
+        self.__rows.append(Observable(Row(castedRow)))
         self.__rowCount.set(self.rowCount+1)
         self._doCallbacks()
 
@@ -90,7 +91,8 @@ class Table(BaseObservable):
             if col not in row.keys():
                 raise ValueError(f"Row should contain all table columns, does not have {col}")
         for colName, rowValue in row.items():
-            if rowValue != None and not isinstance(rowValue, self[colName].type):
+            val = self.columns[colName].cast(rowValue)
+            if not isinstance(val, self[colName].type):
                 raise TypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
 
     def __validateName(self, name):
