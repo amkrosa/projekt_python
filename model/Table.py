@@ -4,6 +4,7 @@ from typing import Type, TypeVar, Union, Dict, Any
 from lib.BaseObservable import BaseObservable
 from model.Row import Row
 from lib.Observable import Observable
+from model.column.ColumnTypeError import ColumnTypeError
 
 C = TypeVar("C", bound="Column")
 
@@ -100,7 +101,7 @@ class Table(BaseObservable):
         for colName, rowValue in row.items():
             val = self.columns[colName].cast(rowValue)
             if not isinstance(val, self[colName].type):
-                raise TypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
+                raise ColumnTypeError(f"Must input matching value types. {colName} needs {self[colName].type}")
 
     def __validateName(self, name):
         """

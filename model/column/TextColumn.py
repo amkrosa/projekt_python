@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from model.column.Column import Column
 from lib.Observable import Observable
+from model.column.ColumnTypeError import ColumnTypeError
 
 
 class TextColumn(Column):
@@ -19,4 +20,4 @@ class TextColumn(Column):
             else:
                 return None
         except ValueError:
-            raise TypeError("TextColumn may consists only of str")
+            raise ColumnTypeError("TextColumn may consists only of str")

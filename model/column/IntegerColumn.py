@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from model.column.Column import Column
 from lib.Observable import Observable
+from model.column.ColumnTypeError import ColumnTypeError
 
 
 class IntegerColumn(Column):
@@ -19,4 +20,4 @@ class IntegerColumn(Column):
             else:
                 return None
         except ValueError:
-            raise TypeError("IntegerColumn may consists only of int")
+            raise ColumnTypeError("IntegerColumn may consists only of int")

@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from model.column.Column import Column
 from lib.Observable import Observable
+from model.column.ColumnTypeError import ColumnTypeError
 
 
 class FloatColumn(Column):
@@ -19,4 +20,4 @@ class FloatColumn(Column):
             else:
                 return None
         except ValueError:
-            raise TypeError("FloatColumn may consists only of floats")
+            raise ColumnTypeError("FloatColumn may consists only of floats")
