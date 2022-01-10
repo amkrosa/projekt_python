@@ -117,7 +117,9 @@ class TableViewModel:
             user_data["after"](user_data["data"]["tableName"], user_data["data"]["row"])
 
     def handleConfirmDeleteTable(self, sender, app_data, user_data):
-        """Handles click on button in ConfirmationModal. Clicking OK will send user_data["confirmation"]=True and execute callback contained in user_data.
+        """Handles click on button in ConfirmationModal regarding table deletion. Clicking OK will send
+        user_data["confirmation"]=True and execute callback contained in user_data. Checks also if deleted table is the
+        current one, if True then it also hides displayed table rows.
 
         Args:
         	user_data (dict): dictionary with modal object, confirmation boolean, callback function if confimred and data if confirmed
