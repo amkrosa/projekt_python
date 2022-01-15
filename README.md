@@ -49,101 +49,105 @@ Po zakończeniu działania programu (zamknięcie okna) jest wykonywany zapis do 
 
 # Pakiety
 ## application
-### Klasa TableService
+### Klasa TableService ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/application/TableService.py#L11)
 Służy jako interfejs do operacji na logice programu, a zatem wykonywanie operacji dodawania kolumn, dodawania wierszy.
 
 ## infrastructure
-### Klasa Decoder
+### Klasa Decoder ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/infrastructure/Decoder.py#L13)
 Odczytuje plik .json korzystając z metody `object_hook` używanej przez klasę bazową `JSONDecoder`. Korzysta z dodatkowych
 pól, by móc odróżnić różne typy od siebie.
 
-### Klasa Encoder
+### Klasa Encoder ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/infrastructure/Encoder.py#L11)
 Zapisuje dane do pliku .json korzystając z metody `default` używanej przez klasę bazową `JSONEncoder`. Tworzy
 wpisy pomocnicze celem późniejszego łatwiejszego odczytu.
 
 ## lib
-### Klasa BaseObservable
+### Klasa BaseObservable ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/lib/BaseObservable.py#L4)
 Pozwala na łatwiejsze bindowanie danych między modelami, a widokami. Przetrzymuje słownik z funkcjami, które potem klasa
 dziedzicząca może wykonać przy pomocy metody `_doCallbacks`.
 
-### Klasa Observable
+### Klasa Observable ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/lib/Observable.py#L1)
 Podobnie jak klasa `BaseObservable`, tylko bardziej jako wrapper na pojedyncze dane.
 
-### Metaklasa SingletonMeta
+### Metaklasa SingletonMeta ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/lib/SingletonMeta.py#L1)
 Metaklasa pozwalająca na łatwą implementację wzorca projektowego Singleton. Klasy dziedziczące mogą mieć tylko jedną
 instancję.
 
 ## model
 
-### Klasa Repository
+### Klasa Repository ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/Repository.py#L14)
 Singleton przechowujący dane o tabelach. Posiada podstawowe metody do dodawania, usuwania oraz wyszukiwania tabel.
 Dziedziczy również po `BaseObservable` celem łatwiejszego zbindowania modelu z UI.
 
-### Klasa Row
+### Klasa Row ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/Row.py#L1)
 Model wiersza. Dane przechowywane w postaci słownika, metody pozwalają na dodanie wartości i pozyskanie słownika.
 
-### Klasa Table
+### Klasa Table ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/Table.py#L12)
 Model tabeli. Metody umożliwiają dodawanie, usuwanie wierszy, dodawanie kolumn. Operacje dodawania, usuwania są walidowane
 i w tej klasie są zdefiniowane walidatory dla tabeli. Dziedziczy również po `BaseObservable`.
 
 ## model/column
 
-### Klasa Column
+### Klasa Column ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/column/Column.py#L3)
 Podstawowa klasa po której dziedziczą wszystkie inne klasy `...Column`. Posiada metodę do walidacji nazwy kolumny, udostępnia
 `property` z nazwą. Posiada dwie niezaimplementowane metody `cast` i `type`, które powinny być przesłonięte
 przez klasy dziedziczące.
 
-### Klasa FloatColumn
+### Klasa FloatColumn ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/column/FloatColumn.py#L8)
 Klasa dziedzicząca po `Column`. `type` zwraca `float`, a `cast` rzutuje typ na `float`. W razie błędnego rzutowania jest
 wyrzucany wyjątek ColumnTypeError.
 
-### Klasa IntegerColumn
+### Klasa IntegerColumn ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/column/IntegerColumn.py#L8)
 Klasa dziedzicząca po `Column`. `type` zwraca `int`, a `cast` rzutuje typ na `int`. W razie błędnego rzutowania jest
 wyrzucany wyjątek ColumnTypeError.
 
-### Klasa TextColumn
+### Klasa TextColumn ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/column/TextColumn.py#L8)
 Klasa dziedzicząca po `Column`. `type` zwraca `str`, a `cast` rzutuje typ na `str`. W razie błędnego rzutowania jest
 wyrzucany wyjątek ColumnTypeError.
 
-### Klasa ColumnTypeError
+### Klasa ColumnTypeError ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/model/column/ColumnTypeError.py#L1)
 Własny wyjątek zwracany, kiedy występuje problem z wprowadzanym typem danych, a typem danych kolumny.
 
 ## ui/root
-### Klasa RootView
+### Klasa RootView ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/root/RootView.py#L4)
 Definiuje wysokość i szerokość okienka, tworzy `viewport` aplikacji. Posiada metody do wyśrodkowywania elementu.
 
-### Klasa RootHandler
+### Klasa RootHandler ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/root/RootViewModel.py#L10)
 Inicjalizuje `RootView` oraz wczytuje dane do `Repository` z pliku, jeżeli istnieją. Definiuje również handler
 wywoływany w momencie zamknięcia aplikacji.
 
 ## ui/table
 
-### Klasa TableView
+### Klasa TableView ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/table/TableView.py#L16)
 Główna klasa typu `View`, która rysuje lub wywołuje klasy rysujące elementy w interfejsie. Zawiera większość logiki związanej z UI, oprócz funkcji `callback`, które są przekazywane z `TableHandler`.
-### Klasa TableHandler
+### Klasa TableHandler ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/table/TableViewModel.py#L16)
 Przechowuje wszystkie funkcje do obsługi wydarzeń w zakresie aplikacji. W tym miejscu są one również przekazywane do widoku `TableView` razem z jego
 inicjalizacją.
 
 ## ui/widgets
 W pakiecie znajdują się klasy tworzące podstawowe elementy. 
-### Klasa AddTableModal
+### Klasa AddTableModal ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/widgets/AddTableModal.py#L6)
 Tworzy elementy w interfejsie graficznym odpowiadające za okienko `AddTable`. Udostępnia `property` `form`, które
 zczytuje dane z elementów interfejsu.
 
-### Klasa ConfirmationModal
+### Klasa ConfirmationModal ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/widgets/ConfirmationModal.py#L6)
 Tworzy elementy w interfejsie graficznym odpowiadające za `ConfirmationModal`, czyli potwierdzenie.
 
-### ErrorPopup
+### ErrorPopup ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/widgets/ErrorPopup.py#L4)
 Tworzy elementy w interfejsie graficznym odpowiadające za `ErrorPopup`, czyli popup błędu. Element jest tworzony obok wskazanego w konstruktorze
 elementu.
 
-### TablesTable
+### TablesTable ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/ui/widgets/TablesTable.py#L4)
 Tworzy elementy w interfejsie graficznym odpowiadające za `TablesTable`, czyli tabelę z obiektami `Table`.
 
-## MainApplication
+### MainApplication
 Główny punkt wejścia programu.
+## Funkcja run ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/MainApplication.py#L7)
+Wywołuje podstawowe funkcje biblioteki dearpygui.
+## Funkcja exit ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/MainApplication.py#L16)
+Niszczy kontekst elementów biblioteki dearpygui.
 
-# Testy
+# Testy ➔ [link](https://github.com/amkrosa/projekt_python/blob/51d311cb66aac94587584a40a8f0bdb4b67cd2ff/tests/tests.py#L8)
 
 Po każdym teście jest czyszczony singleton `Repository` w metodzie `tearDown`.
 
