@@ -47,10 +47,6 @@ class Table(BaseObservable):
     def rows(self):
         return {i+1: val for i, val in enumerate(self.__rows)}
 
-    @property
-    def json(self):
-        return json.dumps(self.__rows)
-
     def push(self, row: dict):
         self.__verifyRow(row)
         castedRow = { key: self.columns[key].cast(value) for key, value in row.items() }

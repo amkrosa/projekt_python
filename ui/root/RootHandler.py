@@ -5,7 +5,7 @@ from model.Repository import Repository
 from infrastructure.Decoder import Decoder
 from infrastructure.Encoder import Encoder
 from ui.root.RootView import RootView
-from ui.table.TableViewModel import TableViewModel
+from ui.table.TableHandler import TableViewModel
 
 class RootViewModel:
     """

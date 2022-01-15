@@ -2,7 +2,7 @@ import logging
 
 import dearpygui.dearpygui as dpg
 
-from ui.root.RootViewModel import RootViewModel
+from ui.root.RootHandler import RootViewModel
 
 def run():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
